@@ -1,22 +1,256 @@
 {
-  "streams": [
-    {
-      "stream": {
-        "name": "customers",
-        "json_schema": {},
-        "supported_sync_modes": ["full_refresh"]
-      },
-      "sync_mode": "full_refresh",
-      "destination_sync_mode": "overwrite"
-    },
-    {
-      "stream": {
-        "name": "employees",
-        "json_schema": {},
-        "supported_sync_modes": ["full_refresh", "incremental"]
-      },
-      "sync_mode": "incremental",
-      "destination_sync_mode": "append"
-    }
-  ]
+    "streams": [
+        {
+            "stream": {
+                "name": "profiles",
+                "supported_sync_modes": [
+                    "full_refresh"
+                ],
+                "json_schema": {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "type": ["object", "null"],
+                    "properties": {
+                        "id": {
+                            "type": ["string", "null"]
+                        },
+                        "first_name": {
+                            "type": ["string", "null"]
+                        },
+                        "last_name": {
+                            "type": ["string", "null"]
+                        },
+                        "phone_number": {
+                            "type": ["string", "null"]
+                        },
+                        "email": {
+                            "type": ["string", "null"]
+                        },
+                        "status": {
+                            "type": ["string", "null"]
+                        },
+                        "created_at": {
+                            "type": ["string", "null"]
+                        },
+                        "updated_at": {
+                            "type": ["string", "null"]
+                        },
+                        "opted_out_at": {
+                            "type": ["string", "null"]
+                        },
+                        "opted_out_source": {
+                            "type": ["string", "null"]
+                        },
+                        "source": {
+                            "type": ["object", "null"],
+                            "properties": {
+                                "type": {
+                                    "type": ["string", "null"]
+                                },
+                                "name": {
+                                    "type": ["string", "null"]
+                                },
+                                "id": {
+                                    "type": ["string", "null"]
+                                },
+                                "opt_in_path_id": {
+                                    "type": ["string", "null"]
+                                },
+                                "message_id": {
+                                    "type": ["string", "null"]
+                                }
+                            }
+                        },
+                        "address": {
+                            "type": ["object", "null"],
+                            "properties": {
+                                "street1": {
+                                    "type": ["string", "null"]
+                                },
+                                "street2": {
+                                    "type": ["string", "null"]
+                                },
+                                "city": {
+                                    "type": ["string", "null"]
+                                },
+                                "state": {
+                                    "type": ["string", "null"]
+                                },
+                                "postal_code": {
+                                    "type": ["string", "null"]
+                                },
+                                "country": {
+                                    "type": ["string", "null"]
+                                }
+                            }
+                        },
+                        "last_saved_location": {
+                            "type": ["object", "null"],
+                            "properties": {
+                                "latitude": {
+                                    "type": ["string", "null"]
+                                },
+                                "longitude": {
+                                    "type": ["string", "null"]
+                                },
+                                "precision": {
+                                    "type": ["string", "null"]
+                                },
+                                "city": {
+                                    "type": ["string", "null"]
+                                },
+                                "state": {
+                                    "type": ["string", "null"]
+                                },
+                                "postal_code": {
+                                    "type": ["string", "null"]
+                                },
+                                "country": {
+                                    "type": ["string", "null"]
+                                }
+                            }
+                        },
+                        "last_saved_districts": {
+                            "type": ["object", "null"],
+                            "properties": {
+                                "congressional_district": {
+                                    "type": ["string", "null"]
+                                },
+                                "state_upper_district": {
+                                    "type": ["string", "null"]
+                                },
+                                "state_lower_district": {
+                                    "type": ["string", "null"]
+                                },
+                                "split_district": {
+                                    "type": ["string", "null"]
+                                }
+                            }
+                        },
+                        "custom_columns": {
+                            "type": ["object", "null"],
+                            "properties": {
+                                "custom_column": {
+                                    "type": "array",
+                                    "items": [
+                                        {
+                                            "type": ["object", "null"],
+                                            "properties": {
+                                                "name": {
+                                                    "type": ["string", "null"]
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "subscriptions": {
+                            "type": ["object", "null"],
+                            "properties": {
+                                "subscription": {
+                                    "type": ["object", "null"],
+                                    "properties": {
+                                        "campaign_id": {
+                                            "type": ["string", "null"]
+                                        },
+                                        "campaign_name": {
+                                            "type": ["string", "null"]
+                                        },
+                                        "campaign_description": {
+                                            "type": ["string", "null"]
+                                        },
+                                        "opt_in_path_id": {
+                                            "type": ["string", "null"]
+                                        },
+                                        "status": {
+                                            "type": ["string", "null"]
+                                        },
+                                        "opt_in_source": {
+                                            "type": ["string", "null"]
+                                        },
+                                        "created_at": {
+                                            "type": ["string", "null"]
+                                        },
+                                        "activated_at": {
+                                            "type": ["string", "null"]
+                                        },
+                                        "opted_out_at": {
+                                            "type": ["string", "null"]
+                                        },
+                                        "opt_out_source": {
+                                            "type": ["string", "null"]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "integrations": {
+                            "type": ["object", "null"],
+                            "properties": {
+                                "integration": {
+                                    "type": ["object", "null"],
+                                    "properties": {
+                                        "constituent_id": {
+                                            "type": ["string", "null"]
+                                        },
+                                        "type": {
+                                            "type": ["string", "null"]
+                                        },
+                                        "synchronized_at": {
+                                            "type": ["string", "null"]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "clicks": {
+                            "type": ["string", "null"]
+                        }
+                    }
+                }
+            },
+            "sync_mode": "full_refresh",
+            "destination_sync_mode": "overwrite"
+        },
+        {
+            "stream": {
+                "name": "campaigns",
+                "supported_sync_modes": [
+                    "full_refresh"
+                ],
+                "json_schema": {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "active": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "name": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "description": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                }
+            },
+            "sync_mode": "full_refresh",
+            "destination_sync_mode": "overwrite"      
+        }
+    ]
 }

@@ -11,6 +11,7 @@ from airbyte_cdk.sources import AbstractSource
 from airbyte_cdk.sources.streams import Stream
 from airbyte_cdk.sources.streams.http import HttpStream
 from airbyte_cdk.sources.streams.http.auth import TokenAuthenticator
+import json
 import xmltodict
 
 """
@@ -78,7 +79,20 @@ class MobileCommonsStream(HttpStream, ABC):
         :return If there is another page in the result, a mapping (e.g: dict) containing information needed to query the next page in the response.
                 If there are no more pages in the result, return None.
         """
-        return None
+        response_dict = xmltodict.parse(
+            xml_input=response.content,
+            attr_prefix="",
+            cdata_key="",
+            process_namespaces=True
+        )['response'][self.object_name]
+
+        self.page = int(response_dict.get('page'))
+
+        if self.page and int(response_dict['num']) > 0:
+            self.page += 1
+            return {"page": self.page}
+        else:
+            return None
 
     def request_params(
         self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, any] = None, next_page_token: Mapping[str, Any] = None
@@ -87,24 +101,27 @@ class MobileCommonsStream(HttpStream, ABC):
         TODO: Override this method to define any query parameters to be set. Remove this method if you don't need to define request params.
         Usually contains common params e.g. pagination size etc.
         """
-        return {}
+        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
+        if next_page_token:
+            params.update(**next_page_token)
+        return params
 
     def parse_response(self, response: requests.Response, **kwargs) -> Iterable[Mapping]:
         """
-        TODO: Override this method to define how a response is parsed.
-        :return an iterable containing each record in the response
         """
-        print(response)
-        print(self.object_name, self.array_name)
         response_dict = xmltodict.parse(
             xml_input=response.content,
             attr_prefix="",
             cdata_key="",
             process_namespaces=True,
-            # force_list=['tags', 'opt_in_path']
+            force_list=['tags', 'opt_in_path']
+            # force_list=None
         )['response']
 
         data = response_dict[self.object_name][self.array_name]
+        # print(json.dumps(data[0]))
+        # for i in data:
+        #     print(i)
         yield from data
 
 
@@ -154,46 +171,48 @@ class IncrementalMobileCommonsStream(MobileCommonsStream, ABC):
         """
         return {}
 
+# class Profiles(IncrementalMobileCommonsStream):
+class Profiles(MobileCommonsStream):
+    """
+    """
 
-class Profiles(IncrementalMobileCommonsStream):
-    """
-    TODO: Change class name to match the table/data source this stream corresponds to.
-    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = 'profiles'
+        self.array_name = 'profile'
 
     # TODO: Fill in the cursor_field. Required.
-    cursor_field = "start_date"
+    # cursor_field = "start_date"
 
     # TODO: Fill in the primary key. Required. This is usually a unique field in the stream, like an ID or a timestamp.
-    primary_key = "employee_id"
+    primary_key = "id"
 
     def path(self, **kwargs) -> str:
         """
-        TODO: Override this method to define the path this stream corresponds to. E.g. if the url is https://example-api.com/v1/employees then this should
-        return "single". Required.
         """
-        return "employees"
+        return "profiles"
 
-    def stream_slices(self, stream_state: Mapping[str, Any] = None, **kwargs) -> Iterable[Optional[Mapping[str, any]]]:
-        """
-        TODO: Optionally override this method to define this stream's slices. If slicing is not needed, delete this method.
+    # def stream_slices(self, stream_state: Mapping[str, Any] = None, **kwargs) -> Iterable[Optional[Mapping[str, any]]]:
+    #     """
+    #     TODO: Optionally override this method to define this stream's slices. If slicing is not needed, delete this method.
 
-        Slices control when state is saved. Specifically, state is saved after a slice has been fully read.
-        This is useful if the API offers reads by groups or filters, and can be paired with the state object to make reads efficient. See the "concepts"
-        section of the docs for more information.
+    #     Slices control when state is saved. Specifically, state is saved after a slice has been fully read.
+    #     This is useful if the API offers reads by groups or filters, and can be paired with the state object to make reads efficient. See the "concepts"
+    #     section of the docs for more information.
 
-        The function is called before reading any records in a stream. It returns an Iterable of dicts, each containing the
-        necessary data to craft a request for a slice. The stream state is usually referenced to determine what slices need to be created.
-        This means that data in a slice is usually closely related to a stream's cursor_field and stream_state.
+    #     The function is called before reading any records in a stream. It returns an Iterable of dicts, each containing the
+    #     necessary data to craft a request for a slice. The stream state is usually referenced to determine what slices need to be created.
+    #     This means that data in a slice is usually closely related to a stream's cursor_field and stream_state.
 
-        An HTTP request is made for each returned slice. The same slice can be accessed in the path, request_params and request_header functions to help
-        craft that specific request.
+    #     An HTTP request is made for each returned slice. The same slice can be accessed in the path, request_params and request_header functions to help
+    #     craft that specific request.
 
-        For example, if https://example-api.com/v1/employees offers a date query params that returns data for that particular day, one way to implement
-        this would be to consult the stream state object for the last synced date, then return a slice containing each date from the last synced date
-        till now. The request_params function would then grab the date from the stream_slice and make it part of the request by injecting it into
-        the date query param.
-        """
-        raise NotImplementedError("Implement stream slices or delete this method!")
+    #     For example, if https://example-api.com/v1/employees offers a date query params that returns data for that particular day, one way to implement
+    #     this would be to consult the stream state object for the last synced date, then return a slice containing each date from the last synced date
+    #     till now. The request_params function would then grab the date from the stream_slice and make it part of the request by injecting it into
+    #     the date query param.
+    #     """
+    #     raise NotImplementedError("Implement stream slices or delete this method!")
 
 
 # Source
@@ -231,4 +250,7 @@ class SourceMobileCommons(AbstractSource):
         :param config: A Mapping of the user input configuration as defined in the connector spec.
         """
         auth = self.get_basic_auth(config)
-        return [Campaigns(authenticator=auth), Profiles(authenticator=auth)]
+        return [
+            Profiles(authenticator=auth),
+            # Campaigns(authenticator=auth),
+        ]
