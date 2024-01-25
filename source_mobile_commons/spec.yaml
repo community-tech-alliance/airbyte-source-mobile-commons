@@ -1,0 +1,17 @@
+documentationUrl: https://docsurl.com
+connectionSpecification:
+  $schema: http://json-schema.org/draft-07/schema#
+  title: Mobile Commons Spec
+  type: object
+  required:
+    - username
+    - password
+  properties:
+    username:
+      type: string
+      description: Mobile Commons username
+      airbyte_secret: false
+    password:
+      type: string
+      description: Mobile Commons password
+      airbyte_secret: true

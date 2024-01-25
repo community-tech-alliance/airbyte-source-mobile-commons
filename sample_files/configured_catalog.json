@@ -1,0 +1,44 @@
+{
+    "streams": [
+        {
+            "stream": {
+                "name": "campaigns",
+                "supported_sync_modes": [
+                    "full_refresh"
+                ],
+                "json_schema": {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "active": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "name": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "description": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                }
+            },
+            "sync_mode": "full_refresh",
+            "destination_sync_mode": "overwrite"      
+        }
+    ]
+}
