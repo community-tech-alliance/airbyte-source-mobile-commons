@@ -90,6 +90,34 @@ class MobileCommonsStream(HttpStream, ABC):
         else:
             return []
 
+class CampaignSubscribers(MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = 'subscriptions'
+        self.array_name = 'sub'
+        self.force_list=['sub']
+        self.custom_params = {
+            "campaign_id": 220341, # parameterize this!!
+        }
+
+    primary_key = "id"
+
+    def request_params(
+        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> MutableMapping[str, Any]:
+        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
+        params.update(self.custom_params)
+
+        return params
+
+    def path(
+        self, stream_state: Mapping[str, Any] = None, stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> str:
+
+        return "campaign_subscribers"
 
 class Campaigns(MobileCommonsStream):
     """
@@ -243,6 +271,7 @@ class SourceMobileCommons(AbstractSource):
         """
         auth = self.get_basic_auth(config)
         return [
-            Profiles(authenticator=auth),
-            Campaigns(authenticator=auth),
+            CampaignSubscribers(authenticator=auth),
+            # Profiles(authenticator=auth),
+            # Campaigns(authenticator=auth),
         ]

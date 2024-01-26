@@ -2,141 +2,307 @@
     "streams": [
         {
             "stream": {
+                "name": "campaign_subscribers",
+                "supported_sync_modes": [
+                    "full_refresh"
+                ],
+                "json_schema": {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "profile_id": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "phone_number": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "activated_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "opted_out_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                }
+            },
+            "sync_mode": "full_refresh",
+            "destination_sync_mode": "overwrite"
+        },
+        {
+            "stream": {
                 "name": "profiles",
                 "supported_sync_modes": [
                     "full_refresh"
                 ],
                 "json_schema": {
                     "$schema": "http://json-schema.org/draft-07/schema#",
-                    "type": ["object", "null"],
+                    "type": [
+                        "object",
+                        "null"
+                    ],
                     "properties": {
                         "id": {
-                            "type": ["string", "null"]
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "first_name": {
-                            "type": ["string", "null"]
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "last_name": {
-                            "type": ["string", "null"]
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "phone_number": {
-                            "type": ["string", "null"]
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "email": {
-                            "type": ["string", "null"]
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "status": {
-                            "type": ["string", "null"]
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "created_at": {
-                            "type": ["string", "null"]
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "updated_at": {
-                            "type": ["string", "null"]
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "opted_out_at": {
-                            "type": ["string", "null"]
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "opted_out_source": {
-                            "type": ["string", "null"]
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         },
                         "source": {
-                            "type": ["object", "null"],
+                            "type": [
+                                "object",
+                                "null"
+                            ],
                             "properties": {
                                 "type": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "name": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "id": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "opt_in_path_id": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "message_id": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 }
                             }
                         },
                         "address": {
-                            "type": ["object", "null"],
+                            "type": [
+                                "object",
+                                "null"
+                            ],
                             "properties": {
                                 "street1": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "street2": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "city": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "state": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "postal_code": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "country": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 }
                             }
                         },
                         "last_saved_location": {
-                            "type": ["object", "null"],
+                            "type": [
+                                "object",
+                                "null"
+                            ],
                             "properties": {
                                 "latitude": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "longitude": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "precision": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "city": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "state": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "postal_code": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "country": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 }
                             }
                         },
                         "last_saved_districts": {
-                            "type": ["object", "null"],
+                            "type": [
+                                "object",
+                                "null"
+                            ],
                             "properties": {
                                 "congressional_district": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "state_upper_district": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "state_lower_district": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 },
                                 "split_district": {
-                                    "type": ["string", "null"]
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 }
                             }
                         },
                         "custom_columns": {
-                            "type": ["object", "null"],
+                            "type": [
+                                "object",
+                                "null"
+                            ],
                             "properties": {
                                 "custom_column": {
                                     "type": "array",
                                     "items": [
                                         {
-                                            "type": ["object", "null"],
+                                            "type": [
+                                                "object",
+                                                "null"
+                                            ],
                                             "properties": {
                                                 "name": {
-                                                    "type": ["string", "null"]
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
                                                 }
                                             }
                                         }
@@ -145,66 +311,120 @@
                             }
                         },
                         "subscriptions": {
-                            "type": ["object", "null"],
+                            "type": [
+                                "object",
+                                "null"
+                            ],
                             "properties": {
                                 "subscription": {
-                                    "type": ["object", "null"],
+                                    "type": [
+                                        "object",
+                                        "null"
+                                    ],
                                     "properties": {
                                         "campaign_id": {
-                                            "type": ["string", "null"]
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "campaign_name": {
-                                            "type": ["string", "null"]
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "campaign_description": {
-                                            "type": ["string", "null"]
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "opt_in_path_id": {
-                                            "type": ["string", "null"]
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "status": {
-                                            "type": ["string", "null"]
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "opt_in_source": {
-                                            "type": ["string", "null"]
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "created_at": {
-                                            "type": ["string", "null"]
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "activated_at": {
-                                            "type": ["string", "null"]
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "opted_out_at": {
-                                            "type": ["string", "null"]
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "opt_out_source": {
-                                            "type": ["string", "null"]
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         }
                                     }
                                 }
                             }
                         },
                         "integrations": {
-                            "type": ["object", "null"],
+                            "type": [
+                                "object",
+                                "null"
+                            ],
                             "properties": {
                                 "integration": {
-                                    "type": ["object", "null"],
+                                    "type": [
+                                        "object",
+                                        "null"
+                                    ],
                                     "properties": {
                                         "constituent_id": {
-                                            "type": ["string", "null"]
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "type": {
-                                            "type": ["string", "null"]
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "synchronized_at": {
-                                            "type": ["string", "null"]
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         }
                                     }
                                 }
                             }
                         },
                         "clicks": {
-                            "type": ["string", "null"]
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         }
                     }
                 }
@@ -250,7 +470,7 @@
                 }
             },
             "sync_mode": "full_refresh",
-            "destination_sync_mode": "overwrite"      
+            "destination_sync_mode": "overwrite"
         }
     ]
 }

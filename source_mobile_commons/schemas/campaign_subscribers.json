@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": ["string", "null"]
+    },
+    "profile_id": {
+      "type": ["string", "null"]
+    },
+    "phone_number": {
+      "type": ["string", "null"]
+    },
+    "activated_at": {
+      "type": ["string", "null"]
+    },
+    "opted_out_at": {
+      "type": ["string", "null"]
+    }
+  }
+}
