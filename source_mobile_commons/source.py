@@ -272,6 +272,6 @@ class SourceMobileCommons(AbstractSource):
         auth = self.get_basic_auth(config)
         return [
             CampaignSubscribers(authenticator=auth),
-            # Profiles(authenticator=auth),
-            # Campaigns(authenticator=auth),
+            Profiles(authenticator=auth),
+            Campaigns(authenticator=auth),
         ]
