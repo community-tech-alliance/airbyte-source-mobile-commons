@@ -32,29 +32,6 @@ There are additional required TODOs in the files within the integration_tests fo
 # Basic full refresh stream
 class MobileCommonsStream(HttpStream, ABC):
     """
-    TODO remove this comment
-
-    This class represents a stream output by the connector.
-    This is an abstract base class meant to contain all the common functionality at the API level e.g: the API base URL, pagination strategy,
-    parsing responses etc..
-
-    Each stream should extend this class (or another abstract subclass of it) to specify behavior unique to that stream.
-
-    Typically for REST APIs each stream corresponds to a resource in the API. For example if the API
-    contains the endpoints
-        - GET v1/customers
-        - GET v1/employees
-
-    then you should have three classes:
-    `class MobileCommonsStream(HttpStream, ABC)` which is the current class
-    `class Customers(MobileCommonsStream)` contains behavior to pull data for customers using v1/customers
-    `class Employees(MobileCommonsStream)` contains behavior to pull data for employees using v1/employees
-
-    If some streams implement incremental sync, it is typical to create another class
-    `class IncrementalMobileCommonsStream((MobileCommonsStream), ABC)` then have concrete stream implementations extend it. An example
-    is provided below.
-
-    See the reference docs for the full list of configurable options.
     """
 
     url_base = "https://secure.mcommons.com/api/"
@@ -66,18 +43,6 @@ class MobileCommonsStream(HttpStream, ABC):
 
     def next_page_token(self, response: requests.Response) -> Optional[Mapping[str, Any]]:
         """
-        TODO: Override this method to define a pagination strategy. If you will not be using pagination, no action is required - just return None.
-
-        This method should return a Mapping (e.g: dict) containing whatever information required to make paginated requests. This dict is passed
-        to most other methods in this class to help you form headers, request bodies, query params, etc..
-
-        For example, if the API accepts a 'page' parameter to determine which page of the result to return, and a response from the API contains a
-        'page' number, then this method should probably return a dict {'page': response.json()['page'] + 1} to increment the page count by 1.
-        The request_params method should then read the input next_page_token and set the 'page' param to next_page_token['page'].
-
-        :param response: the most recent response from the API
-        :return If there is another page in the result, a mapping (e.g: dict) containing information needed to query the next page in the response.
-                If there are no more pages in the result, return None.
         """
         response_dict = xmltodict.parse(
             xml_input=response.content,
@@ -86,10 +51,11 @@ class MobileCommonsStream(HttpStream, ABC):
             process_namespaces=True
         )['response'][self.object_name]
 
-        self.page = int(response_dict.get('page'))
+        page = response_dict.get('page')
+        num = response_dict.get('num')
 
-        if self.page and int(response_dict['num']) > 0:
-            self.page += 1
+        if page and int(num) > 0:
+            self.page = int(page) + 1
             return {"page": self.page}
         else:
             return None
@@ -98,8 +64,6 @@ class MobileCommonsStream(HttpStream, ABC):
         self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, any] = None, next_page_token: Mapping[str, Any] = None
     ) -> MutableMapping[str, Any]:
         """
-        TODO: Override this method to define any query parameters to be set. Remove this method if you don't need to define request params.
-        Usually contains common params e.g. pagination size etc.
         """
         params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
         if next_page_token:
@@ -118,11 +82,11 @@ class MobileCommonsStream(HttpStream, ABC):
             # force_list=None
         )['response']
 
-        data = response_dict[self.object_name][self.array_name]
-        # print(json.dumps(data[0]))
-        # for i in data:
-        #     print(i)
-        yield from data
+        data = response_dict[self.object_name].get(self.array_name)
+        if data:
+            yield from data
+        else:
+            return []
 
 
 class Campaigns(MobileCommonsStream):
@@ -133,8 +97,19 @@ class Campaigns(MobileCommonsStream):
         super().__init__(*args, **kwargs)
         self.object_name = 'campaigns'
         self.array_name = 'campaign'
+        self.custom_params = {
+            "include_opt_in_paths": 1
+        }
 
     primary_key = "id"
+
+    def request_params(
+        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> MutableMapping[str, Any]:
+        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
+        params.update({self.custom_params})
+
+        return params
 
     def path(
         self, stream_state: Mapping[str, Any] = None, stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
@@ -180,12 +155,25 @@ class Profiles(MobileCommonsStream):
         super().__init__(*args, **kwargs)
         self.object_name = 'profiles'
         self.array_name = 'profile'
+        self.custom_params = {
+            "include_custom_columns": True,
+            "include_subscriptions": True,
+            "include_clicks": True,
+            "include_members": True,
+        }
 
     # TODO: Fill in the cursor_field. Required.
-    # cursor_field = "start_date"
+    # cursor_field = "updated_at"
 
-    # TODO: Fill in the primary key. Required. This is usually a unique field in the stream, like an ID or a timestamp.
     primary_key = "id"
+
+    def request_params(
+        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> MutableMapping[str, Any]:
+        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
+        params.update(self.custom_params)
+
+        return params
 
     def path(self, **kwargs) -> str:
         """
@@ -252,5 +240,5 @@ class SourceMobileCommons(AbstractSource):
         auth = self.get_basic_auth(config)
         return [
             Profiles(authenticator=auth),
-            # Campaigns(authenticator=auth),
+            Campaigns(authenticator=auth),
         ]
