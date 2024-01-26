@@ -40,6 +40,9 @@ class MobileCommonsStream(HttpStream, ABC):
         super().__init__(*args, **kwargs)
         self._username = username
         self._password = password
+        self.object_name = None
+        self.array_name = None
+        self.forced_list = None
 
     def next_page_token(self, response: requests.Response) -> Optional[Mapping[str, Any]]:
         """
@@ -78,8 +81,7 @@ class MobileCommonsStream(HttpStream, ABC):
             attr_prefix="",
             cdata_key="",
             process_namespaces=True,
-            force_list=['tags', 'opt_in_path']
-            # force_list=None
+            force_list=self.forced_list
         )['response']
 
         data = response_dict[self.object_name].get(self.array_name)
@@ -97,8 +99,9 @@ class Campaigns(MobileCommonsStream):
         super().__init__(*args, **kwargs)
         self.object_name = 'campaigns'
         self.array_name = 'campaign'
+        self.force_list=['tags', 'opt_in_path']
         self.custom_params = {
-            "include_opt_in_paths": 1
+            "include_opt_in_paths": 1,
         }
 
     primary_key = "id"
@@ -107,7 +110,7 @@ class Campaigns(MobileCommonsStream):
         self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
     ) -> MutableMapping[str, Any]:
         params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
-        params.update({self.custom_params})
+        params.update(self.custom_params)
 
         return params
 
@@ -155,11 +158,12 @@ class Profiles(MobileCommonsStream):
         super().__init__(*args, **kwargs)
         self.object_name = 'profiles'
         self.array_name = 'profile'
+        self.force_list=['custom_column', 'integration', 'subscription']
         self.custom_params = {
             "include_custom_columns": True,
             "include_subscriptions": True,
-            "include_clicks": True,
-            "include_members": True,
+            "include_clicks": False,
+            "include_members": False,
         }
 
     # TODO: Fill in the cursor_field. Required.
