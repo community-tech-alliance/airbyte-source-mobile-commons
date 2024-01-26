@@ -36,10 +36,18 @@ class MobileCommonsStream(HttpStream, ABC):
 
     url_base = "https://secure.mcommons.com/api/"
 
-    def __init__(self, *args, username: str = None, password: str = None, **kwargs):
+    def __init__(
+        self,
+        *args,
+        username: str = None,
+        password: str = None,
+        campaign_id: str = None,
+        **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self._username = username
         self._password = password
+        self.campaign_id = campaign_id
         self.object_name = None
         self.array_name = None
         self.forced_list = None
@@ -100,7 +108,7 @@ class CampaignSubscribers(MobileCommonsStream):
         self.array_name = 'sub'
         self.force_list=['sub']
         self.custom_params = {
-            "campaign_id": 220341, # parameterize this!!
+            "campaign_id": self.campaign_id, # parameterize this!!
         }
 
     primary_key = "id"
@@ -127,7 +135,7 @@ class Campaigns(MobileCommonsStream):
         super().__init__(*args, **kwargs)
         self.object_name = 'campaigns'
         self.array_name = 'campaign'
-        self.force_list=['tags', 'opt_in_path']
+        self.force_list=['campaign', 'tags', 'opt_in_path']
         self.custom_params = {
             "include_opt_in_paths": 1,
         }
@@ -186,7 +194,7 @@ class Profiles(MobileCommonsStream):
         super().__init__(*args, **kwargs)
         self.object_name = 'profiles'
         self.array_name = 'profile'
-        self.force_list=['custom_column', 'integration', 'subscription']
+        self.force_list=['profile', 'custom_column', 'integration', 'subscription']
         self.custom_params = {
             "include_custom_columns": True,
             "include_subscriptions": True,
@@ -250,6 +258,7 @@ class SourceMobileCommons(AbstractSource):
         :return Tuple[bool, any]: (True, None) if the input config can be used to connect to the API successfully, (False, error) otherwise.
         """
 
+        # We should change this to leverage the actual stream class.
         check_url = "https://secure.mcommons.com/api/campaigns"
 
         try:
@@ -271,7 +280,10 @@ class SourceMobileCommons(AbstractSource):
         """
         auth = self.get_basic_auth(config)
         return [
-            CampaignSubscribers(authenticator=auth),
+            CampaignSubscribers(
+                authenticator=auth,
+                campaign_id=config.get('campaign_id')
+            ),
             Profiles(authenticator=auth),
             Campaigns(authenticator=auth),
         ]
