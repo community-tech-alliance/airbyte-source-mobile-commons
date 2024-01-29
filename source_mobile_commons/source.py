@@ -303,10 +303,10 @@ class SourceMobileCommons(AbstractSource):
         auth = self.get_basic_auth(config)
         return [
             Keywords(authenticator=auth),
-            # CampaignSubscribers(
-            #     authenticator=auth,
-            #     campaign_id=config.get('campaign_id')
-            # ),
-            # Profiles(authenticator=auth),
-            # Campaigns(authenticator=auth),
+            CampaignSubscribers(
+                authenticator=auth,
+                campaign_id=config.get('campaign_id')
+            ),
+            Profiles(authenticator=auth),
+            Campaigns(authenticator=auth),
         ]
