@@ -201,6 +201,36 @@ class Campaigns(MobileCommonsStream):
         return "campaigns"
 
 
+class IncomingMessages(MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = 'messages'
+        self.array_name = 'message'
+        self.force_list=['message']
+        self.custom_params = {
+            "limit": 1000
+        }
+
+    primary_key = "id"
+
+    def request_params(
+        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> MutableMapping[str, Any]:
+        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
+        params.update(self.custom_params)
+
+        return params
+
+    def path(
+        self, stream_state: Mapping[str, Any] = None, stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> str:
+
+        return "messages"
+
+
 # Basic incremental stream
 class IncrementalMobileCommonsStream(MobileCommonsStream, ABC):
     """
@@ -344,7 +374,8 @@ class SourceMobileCommons(AbstractSource):
         """
         auth = self.get_basic_auth(config)
         return [
-            Broadcasts(authenticator=auth),
+            IncomingMessages(authenticator=auth),
+            # Broadcasts(authenticator=auth),
             # Keywords(authenticator=auth),
             # CampaignSubscribers(
             #     authenticator=auth,
