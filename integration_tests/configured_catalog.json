@@ -2,6 +2,61 @@
     "streams": [
         {
             "stream": {
+                "name": "keywords",
+                "supported_sync_modes": [
+                    "full_refresh"
+                ],
+                "json_schema": {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "active": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "name": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "opt_in_path_id": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "ended_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "created_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "updated_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                }
+            },
+            "sync_mode": "full_refresh",
+            "destination_sync_mode": "overwrite"
+        },
+        {
+            "stream": {
                 "name": "campaign_subscribers",
                 "supported_sync_modes": [
                     "full_refresh"

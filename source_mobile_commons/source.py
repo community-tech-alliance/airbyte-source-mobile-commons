@@ -93,6 +93,8 @@ class MobileCommonsStream(HttpStream, ABC):
         )['response']
 
         data = response_dict[self.object_name].get(self.array_name)
+        # print(json.dumps(data[0]))
+        # sys.exit()
         if data:
             yield from data
         else:
@@ -184,6 +186,26 @@ class IncrementalMobileCommonsStream(MobileCommonsStream, ABC):
         the current state and picks the 'most' recent cursor. This is how a stream's state is determined. Required for incremental.
         """
         return {}
+
+class Keywords(MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = 'keywords'
+        self.array_name = 'keyword'
+        self.force_list = ['keyword']
+
+    # TODO: Fill in the cursor_field. Required.
+    # cursor_field = "updated_at"
+
+    primary_key = "id"
+
+    def path(self, **kwargs) -> str:
+        """
+        """
+        return "keywords"
 
 # class Profiles(IncrementalMobileCommonsStream):
 class Profiles(MobileCommonsStream):
@@ -280,10 +302,11 @@ class SourceMobileCommons(AbstractSource):
         """
         auth = self.get_basic_auth(config)
         return [
-            CampaignSubscribers(
-                authenticator=auth,
-                campaign_id=config.get('campaign_id')
-            ),
-            Profiles(authenticator=auth),
-            Campaigns(authenticator=auth),
+            Keywords(authenticator=auth),
+            # CampaignSubscribers(
+            #     authenticator=auth,
+            #     campaign_id=config.get('campaign_id')
+            # ),
+            # Profiles(authenticator=auth),
+            # Campaigns(authenticator=auth),
         ]
