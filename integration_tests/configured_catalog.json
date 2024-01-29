@@ -2,6 +2,207 @@
     "streams": [
         {
             "stream": {
+                "name": "broadcasts",
+                "supported_sync_modes": [
+                    "full_refresh"
+                ],
+                "json_schema": {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "name": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "body": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "campaign": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "active": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "name": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            }
+                        },
+                        "delivery_time": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "include_subscribers": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "throttled": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "localtime": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "automated": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "estimated_recipients_count": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "replies_count": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "opt_outs_count": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "included_groups": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "group": {
+                                    "type": [
+                                        "array",
+                                        "null"
+                                    ],
+                                    "items": [
+                                        {
+                                            "type": [
+                                                "object",
+                                                "null"
+                                            ],
+                                            "properties": {
+                                                "name": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "id": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "type": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "excluded_groups": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "group": {
+                                    "type": [
+                                        "object",
+                                        "null"
+                                    ],
+                                    "properties": {
+                                        "name": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "id": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "type": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "tag": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "sync_mode": "full_refresh",
+            "destination_sync_mode": "overwrite"
+        },
+        {
+            "stream": {
                 "name": "keywords",
                 "supported_sync_modes": [
                     "full_refresh"
