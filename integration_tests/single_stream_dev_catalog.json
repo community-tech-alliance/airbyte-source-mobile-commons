@@ -2,7 +2,7 @@
     "streams": [
         {
             "stream": {
-                "name": "incoming_messages",
+                "name": "outgoing_messages",
                 "supported_sync_modes": [
                     "full_refresh"
                 ],
