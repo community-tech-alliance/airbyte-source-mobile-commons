@@ -104,8 +104,8 @@ class MobileCommonsStream(HttpStream, ABC):
         )['response']
 
         data = response_dict[self.object_name].get(self.array_name)
-        print(json.dumps(data[0]))
-        sys.exit()
+        # print(json.dumps(data[0]))
+        # sys.exit()
         if data:
             yield from data
         else:
@@ -404,7 +404,8 @@ class SourceMobileCommons(AbstractSource):
         """
         auth = self.get_basic_auth(config)
         return [
-            IncomingMessages(authenticator=auth),
+            OutgoingMessages(authenticator=auth),
+            # IncomingMessages(authenticator=auth),
             # Broadcasts(authenticator=auth),
             # Keywords(authenticator=auth),
             # CampaignSubscribers(
