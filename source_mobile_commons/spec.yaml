@@ -15,3 +15,7 @@ connectionSpecification:
       type: string
       description: Mobile Commons password
       airbyte_secret: true
+    campaign_id:
+      type: string
+      description: Mobile Commons username
+      airbyte_secret: false
