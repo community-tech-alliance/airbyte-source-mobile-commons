@@ -121,7 +121,7 @@ class Broadcasts(MobileCommonsStream):
         self.array_name = 'broadcast'
         self.force_list=['broadcast', 'group', 'tags']
         self.custom_params = {
-            "limit": 100
+            "limit": 20
         }
 
     # TODO: Fill in the cursor_field. Required.
