@@ -9,7 +9,7 @@ from typing import Any, Iterable, List, Mapping, MutableMapping, Optional, Tuple
 import requests
 from airbyte_cdk.sources import AbstractSource
 from airbyte_cdk.sources.streams import Stream
-from airbyte_cdk.sources.streams.http import HttpStream
+from airbyte_cdk.sources.streams.http import HttpStream, HttpSubStream
 from airbyte_cdk.sources.streams.http.auth import TokenAuthenticator
 import json
 import xmltodict
@@ -142,7 +142,12 @@ class Broadcasts(MobileCommonsStream):
         """
         return "broadcasts"
 
-class CampaignSubscribers(MobileCommonsStream):
+class MobileCommonsSubstream(MobileCommonsStream, HttpSubStream, ABC):
+
+    def __init__(self, parent: MobileCommonsStream, *args, **kwargs):
+        super().__init__(parent=parent, *args, **kwargs)
+
+class CampaignSubscribers(MobileCommonsSubstream):
     """
     """
 
@@ -151,9 +156,13 @@ class CampaignSubscribers(MobileCommonsStream):
         self.object_name = 'subscriptions'
         self.array_name = 'sub'
         self.force_list=['sub']
+        # self.custom_params = {
+        #     "campaign_id": self.campaign_id, # parameterize this!!
+        # }
         self.custom_params = {
-            "campaign_id": self.campaign_id, # parameterize this!!
+            "campaign_id": stream_slice['parent']['id']
         }
+        
 
     primary_key = "id"
 
