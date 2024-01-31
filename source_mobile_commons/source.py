@@ -404,14 +404,14 @@ class SourceMobileCommons(AbstractSource):
         """
         auth = self.get_basic_auth(config)
         return [
+            Broadcasts(authenticator=auth),
+            Campaigns(authenticator=auth),
+            CampaignSubscribers(
+                authenticator=auth,
+                campaign_id=config.get('campaign_id')
+            ),
+            IncomingMessages(authenticator=auth),
+            Keywords(authenticator=auth),
             OutgoingMessages(authenticator=auth),
-            # IncomingMessages(authenticator=auth),
-            # Broadcasts(authenticator=auth),
-            # Keywords(authenticator=auth),
-            # CampaignSubscribers(
-            #     authenticator=auth,
-            #     campaign_id=config.get('campaign_id')
-            # ),
-            # Profiles(authenticator=auth),
-            # Campaigns(authenticator=auth),
+            Profiles(authenticator=auth),
         ]
