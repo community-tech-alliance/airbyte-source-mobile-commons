@@ -289,7 +289,8 @@ class OutgoingMessages(MobileCommonsStream):
         self.array_name = 'message'
         self.force_list=['message']
         self.custom_params = {
-            "limit": 1000
+            "limit": 1000,
+            "start_time": "2024-01-01" # Adding temporarily
         }
 
     primary_key = "id"
