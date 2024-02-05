@@ -2,7 +2,7 @@
     "streams": [
         {
             "stream": {
-                "name": "outgoing_messages",
+                "name": "broadcasts",
                 "supported_sync_modes": [
                     "full_refresh"
                 ],
@@ -155,23 +155,53 @@
                             "properties": {
                                 "group": {
                                     "type": [
+                                        "array",
+                                        "null"
+                                    ],
+                                    "items": [
+                                        {
+                                            "type": [
+                                                "object",
+                                                "null"
+                                            ],
+                                            "properties": {
+                                                "name": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "id": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "type": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "tags": {
+                            "type": [
+                                "array",
+                                "null"
+                            ],
+                            "items": [
+                                {
+                                    "type": [
                                         "object",
                                         "null"
                                     ],
                                     "properties": {
-                                        "name": {
-                                            "type": [
-                                                "string",
-                                                "null"
-                                            ]
-                                        },
-                                        "id": {
-                                            "type": [
-                                                "string",
-                                                "null"
-                                            ]
-                                        },
-                                        "type": {
+                                        "tag": {
                                             "type": [
                                                 "string",
                                                 "null"
@@ -179,21 +209,7 @@
                                         }
                                     }
                                 }
-                            }
-                        },
-                        "tags": {
-                            "type": [
-                                "object",
-                                "null"
-                            ],
-                            "properties": {
-                                "tag": {
-                                    "type": [
-                                        "string",
-                                        "null"
-                                    ]
-                                }
-                            }
+                            ]
                         }
                     }
                 }
