@@ -64,10 +64,21 @@ class MobileCommonsStream(HttpStream, ABC):
 
         page = response_dict.get('page')
         num = response_dict.get('num')
+        page_count = response_dict.get('page_count')
 
-        if page and int(num) > 0:
-            self.page = int(page) + 1
-            return {"page": self.page}
+        # There are two different types of pagination... fun.
+        if page and num:
+            if int(num) > 0:
+                self.page = int(page) + 1
+                return {"page": self.page}
+            else:
+                return None
+        elif page and page_count:
+            if int(page) < int(page_count):
+                self.page = int(page) + 1
+                return {"page": self.page}
+            else:
+                return None
         else:
             return None
 
@@ -93,10 +104,43 @@ class MobileCommonsStream(HttpStream, ABC):
         )['response']
 
         data = response_dict[self.object_name].get(self.array_name)
+        # print(json.dumps(data[0]))
+        # sys.exit()
         if data:
             yield from data
         else:
             return []
+
+class Broadcasts(MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = 'broadcasts'
+        self.array_name = 'broadcast'
+        self.force_list=['broadcast', 'group', 'tags']
+        self.custom_params = {
+            "limit": 20
+        }
+
+    # TODO: Fill in the cursor_field. Required.
+    # cursor_field = "updated_at"
+
+    primary_key = "id"
+
+    def request_params(
+        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> MutableMapping[str, Any]:
+        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
+        params.update(self.custom_params)
+
+        return params
+
+    def path(self, **kwargs) -> str:
+        """
+        """
+        return "broadcasts"
 
 class CampaignSubscribers(MobileCommonsStream):
     """
@@ -157,6 +201,36 @@ class Campaigns(MobileCommonsStream):
         return "campaigns"
 
 
+class IncomingMessages(MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = 'messages'
+        self.array_name = 'message'
+        self.force_list=['message']
+        self.custom_params = {
+            "limit": 1000
+        }
+
+    primary_key = "id"
+
+    def request_params(
+        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> MutableMapping[str, Any]:
+        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
+        params.update(self.custom_params)
+
+        return params
+
+    def path(
+        self, stream_state: Mapping[str, Any] = None, stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> str:
+
+        return "messages"
+
+
 # Basic incremental stream
 class IncrementalMobileCommonsStream(MobileCommonsStream, ABC):
     """
@@ -184,6 +258,57 @@ class IncrementalMobileCommonsStream(MobileCommonsStream, ABC):
         the current state and picks the 'most' recent cursor. This is how a stream's state is determined. Required for incremental.
         """
         return {}
+
+class Keywords(MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = 'keywords'
+        self.array_name = 'keyword'
+        self.force_list = ['keyword']
+
+    # TODO: Fill in the cursor_field. Required.
+    # cursor_field = "updated_at"
+
+    primary_key = "id"
+
+    def path(self, **kwargs) -> str:
+        """
+        """
+        return "keywords"
+
+class OutgoingMessages(MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = 'messages'
+        self.array_name = 'message'
+        self.force_list=['message']
+        self.custom_params = {
+            "limit": 1000,
+            "start_time": "2024-01-01" # Adding temporarily
+        }
+
+    primary_key = "id"
+
+    def request_params(
+        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> MutableMapping[str, Any]:
+        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
+        params.update(self.custom_params)
+
+        return params
+
+    def path(
+        self, stream_state: Mapping[str, Any] = None, stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> str:
+
+        return "sent_messages"
+
 
 # class Profiles(IncrementalMobileCommonsStream):
 class Profiles(MobileCommonsStream):
@@ -280,10 +405,14 @@ class SourceMobileCommons(AbstractSource):
         """
         auth = self.get_basic_auth(config)
         return [
+            Broadcasts(authenticator=auth),
+            Campaigns(authenticator=auth),
             CampaignSubscribers(
                 authenticator=auth,
                 campaign_id=config.get('campaign_id')
             ),
+            IncomingMessages(authenticator=auth),
+            Keywords(authenticator=auth),
+            OutgoingMessages(authenticator=auth),
             Profiles(authenticator=auth),
-            Campaigns(authenticator=auth),
         ]
