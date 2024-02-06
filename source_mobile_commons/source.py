@@ -7,11 +7,13 @@ from abc import ABC
 from typing import Any, Iterable, List, Mapping, MutableMapping, Optional, Tuple
 
 import requests
+from airbyte_cdk.models import SyncMode
 from airbyte_cdk.sources import AbstractSource
 from airbyte_cdk.sources.streams import Stream
 from airbyte_cdk.sources.streams.http import HttpStream, HttpSubStream
 from airbyte_cdk.sources.streams.http.auth import TokenAuthenticator
 import json
+import sys
 import xmltodict
 
 """
@@ -50,7 +52,7 @@ class MobileCommonsStream(HttpStream, ABC):
         self.campaign_id = campaign_id
         self.object_name = None
         self.array_name = None
-        self.forced_list = None
+        self.force_list = None
 
     def next_page_token(self, response: requests.Response) -> Optional[Mapping[str, Any]]:
         """
@@ -100,8 +102,9 @@ class MobileCommonsStream(HttpStream, ABC):
             attr_prefix="",
             cdata_key="",
             process_namespaces=True,
-            force_list=self.forced_list
+            force_list=self.force_list
         )['response']
+    
 
         data = response_dict[self.object_name].get(self.array_name)
         # print(json.dumps(data[0]))
@@ -142,12 +145,20 @@ class Broadcasts(MobileCommonsStream):
         """
         return "broadcasts"
 
-class MobileCommonsSubstream(MobileCommonsStream, HttpSubStream, ABC):
 
-    def __init__(self, parent: MobileCommonsStream, *args, **kwargs):
-        super().__init__(parent=parent, *args, **kwargs)
+class CampaignsSubStream(HttpSubStream, MobileCommonsStream):
+    """
+    """
 
-class CampaignSubscribers(MobileCommonsSubstream):
+    def __init__(self, **kwargs):
+        super().__init__(parent=Campaigns, **kwargs)
+        self.parent = Campaigns(**kwargs)
+
+    def get_campaign_ids(self) -> Iterable[Optional[Mapping[str, str]]]:
+        return [{"campaign_id": str(i["id"])} for i in self.parent.read_records(sync_mode=SyncMode.full_refresh)]
+
+
+class CampaignSubscribers(CampaignsSubStream):
     """
     """
 
@@ -156,13 +167,14 @@ class CampaignSubscribers(MobileCommonsSubstream):
         self.object_name = 'subscriptions'
         self.array_name = 'sub'
         self.force_list=['sub']
-        # self.custom_params = {
-        #     "campaign_id": self.campaign_id, # parameterize this!!
-        # }
-        self.custom_params = {
-            "campaign_id": stream_slice['parent']['id']
-        }
-        
+
+    def stream_slices(
+        self, sync_mode: SyncMode, cursor_field: List[str] = None, stream_state: Mapping[str, Any] = None
+    ) -> Iterable[Optional[Mapping[str, Any]]]:
+        for record in self.get_campaign_ids():
+            print(record)
+            yield record
+
 
     primary_key = "id"
 
@@ -170,7 +182,9 @@ class CampaignSubscribers(MobileCommonsSubstream):
         self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
     ) -> MutableMapping[str, Any]:
         params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
-        params.update(self.custom_params)
+        params.update({"campaign_id": stream_slice["campaign_id"]})
+        # params.update({"campaign_id": 224167})
+
 
         return params
 
@@ -194,6 +208,9 @@ class Campaigns(MobileCommonsStream):
         }
 
     primary_key = "id"
+
+    def use_cache(self) -> bool:
+        return True
 
     def request_params(
         self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
