@@ -146,24 +146,13 @@ class Broadcasts(MobileCommonsStream):
         return "broadcasts"
 
 
-class CampaignsSubStream(HttpSubStream, MobileCommonsStream):
+class CampaignSubscribers(HttpSubStream, MobileCommonsStream):
     """
     """
 
     def __init__(self, **kwargs):
         super().__init__(parent=Campaigns, **kwargs)
         self.parent = Campaigns(**kwargs)
-
-    def get_campaign_ids(self) -> Iterable[Optional[Mapping[str, str]]]:
-        return [{"campaign_id": str(i["id"])} for i in self.parent.read_records(sync_mode=SyncMode.full_refresh)]
-
-
-class CampaignSubscribers(CampaignsSubStream):
-    """
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.object_name = 'subscriptions'
         self.array_name = 'sub'
         self.force_list=['sub']
@@ -171,9 +160,8 @@ class CampaignSubscribers(CampaignsSubStream):
     def stream_slices(
         self, sync_mode: SyncMode, cursor_field: List[str] = None, stream_state: Mapping[str, Any] = None
     ) -> Iterable[Optional[Mapping[str, Any]]]:
-        for record in self.get_campaign_ids():
-            print(record)
-            yield record
+        for campaign in self.parent.read_records(sync_mode=SyncMode.full_refresh):
+            yield {"campaign_id": campaign["id"]}
 
 
     primary_key = "id"
