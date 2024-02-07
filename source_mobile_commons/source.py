@@ -103,7 +103,6 @@ class MobileCommonsStream(HttpStream, ABC):
             force_list=self.force_list
         )['response']
     
-
         data = response_dict[self.object_name].get(self.array_name)
         # print(json.dumps(data[0]))
         # sys.exit()
@@ -144,6 +143,81 @@ class Broadcasts(MobileCommonsStream):
         return "broadcasts"
 
 
+class Calls(HttpSubStream, MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(parent=MConnects, **kwargs)
+        self.parent = MConnects(**kwargs)
+        self.object_name = 'calls'
+        self.array_name = 'call'
+        self.force_list=[self.array_name]
+
+    def stream_slices(
+        self, sync_mode: SyncMode, cursor_field: List[str] = None, stream_state: Mapping[str, Any] = None
+    ) -> Iterable[Optional[Mapping[str, Any]]]:
+        for mconnect in self.parent.read_records(sync_mode=SyncMode.full_refresh):
+            yield {"mconnect_id": mconnect["id"]}
+
+
+    primary_key = "id"
+
+    def request_params(
+        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> MutableMapping[str, Any]:
+        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
+        params.update(
+            {
+                "mconnect_id": stream_slice["mconnect_id"],
+                "include_profile": True,
+                "include_profile_id_only": True,
+                "limit": 1000
+            }
+        )
+
+        return params
+
+    def path(
+        self, stream_state: Mapping[str, Any] = None, stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> str:
+
+        return "calls"
+
+
+class Campaigns(MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = 'campaigns'
+        self.array_name = 'campaign'
+        self.force_list=['campaign', 'tags', 'opt_in_path']
+        self.custom_params = {
+            "include_opt_in_paths": 1,
+        }
+
+    primary_key = "id"
+
+    def use_cache(self) -> bool:
+        return True
+
+    def request_params(
+        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> MutableMapping[str, Any]:
+        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
+        params.update(self.custom_params)
+
+        return params
+
+    def path(
+        self, stream_state: Mapping[str, Any] = None, stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> str:
+
+        return "campaigns"
+
+
 class CampaignSubscribers(HttpSubStream, MobileCommonsStream):
     """
     """
@@ -177,38 +251,6 @@ class CampaignSubscribers(HttpSubStream, MobileCommonsStream):
     ) -> str:
 
         return "campaign_subscribers"
-
-class Campaigns(MobileCommonsStream):
-    """
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.object_name = 'campaigns'
-        self.array_name = 'campaign'
-        self.force_list=['campaign', 'tags', 'opt_in_path']
-        self.custom_params = {
-            "include_opt_in_paths": 1,
-        }
-
-    primary_key = "id"
-
-    def use_cache(self) -> bool:
-        return True
-
-    def request_params(
-        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
-    ) -> MutableMapping[str, Any]:
-        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
-        params.update(self.custom_params)
-
-        return params
-
-    def path(
-        self, stream_state: Mapping[str, Any] = None, stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
-    ) -> str:
-
-        return "campaigns"
 
 
 class IncomingMessages(MobileCommonsStream):
@@ -288,6 +330,27 @@ class Keywords(MobileCommonsStream):
         """
         """
         return "keywords"
+
+class MConnects(MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = 'mconnects'
+        self.array_name = 'mconnect'
+        self.force_list = [self.array_name, 'tags']
+
+    # TODO: Fill in the cursor_field. Required.
+    # cursor_field = "updated_at"
+
+    primary_key = "id"
+
+    def path(self, **kwargs) -> str:
+        """
+        """
+        return "mconnects"
+
 
 class OutgoingMessages(MobileCommonsStream):
     """
@@ -416,10 +479,34 @@ class SourceMobileCommons(AbstractSource):
         auth = self.get_basic_auth(config)
         return [
             Broadcasts(authenticator=auth),
+            Calls(authenticator=auth),
             Campaigns(authenticator=auth),
             CampaignSubscribers(authenticator=auth),
             IncomingMessages(authenticator=auth),
             Keywords(authenticator=auth),
+            MConnects(authenticator=auth),
             OutgoingMessages(authenticator=auth),
             Profiles(authenticator=auth),
+            Tinyurls(authenticator=auth),
         ]
+
+
+class Tinyurls(MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = 'tinyurls'
+        self.array_name = 'tinyurl'
+        self.force_list = [self.array_name]
+
+    # TODO: Fill in the cursor_field. Required.
+    # cursor_field = "updated_at"
+
+    primary_key = "id"
+
+    def path(self, **kwargs) -> str:
+        """
+        """
+        return "tinyurls"
