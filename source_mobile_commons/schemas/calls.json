@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "start_time": {
+      "type": ["string", "null"]
+    },
+    "end_time": {
+      "type": ["string", "null"]
+    },
+    "duration": {
+      "type": ["string", "null"]
+    },
+    "call_status": {
+      "type": ["string", "null"]
+    },
+    "connection_source": {
+      "type": ["string", "null"]
+    },
+    "email": {
+      "type": ["string", "null"]
+    },
+    "profile_status": {
+      "type": ["string", "null"]
+    },
+    "profile_status_at_call_time": {
+      "type": ["string", "null"]
+    },
+    "handset_number": {
+      "type": ["string", "null"]
+    },
+    "carrier_name": {
+      "type": ["string", "null"]
+    },
+    "voip_number": {
+      "type": ["string", "null"]
+    },
+    "destination_number": {
+      "type": ["string", "null"]
+    },
+    "transcription": {
+      "type": ["string", "null"]
+    },
+    "voicemail_duration": {
+      "type": ["string", "null"]
+    },
+    "voicemail": {
+      "type": ["string", "null"]
+    },
+    "mconnect": {
+      "type": ["object", "null"],
+      "properties": {
+        "id": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "profile": {
+      "type": ["object", "null"],
+      "properties": {
+        "id": {
+          "type": ["string", "null"]
+        }
+      }
+    }
+  }
+}
