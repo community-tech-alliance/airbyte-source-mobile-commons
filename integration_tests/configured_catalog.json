@@ -982,7 +982,7 @@
         },
         {
             "stream": {
-                "name": "tinyurls",
+                "name": "tiny_urls",
                 "supported_sync_modes": [
                     "full_refresh"
                 ],

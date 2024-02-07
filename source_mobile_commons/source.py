@@ -487,11 +487,11 @@ class SourceMobileCommons(AbstractSource):
             MConnects(authenticator=auth),
             OutgoingMessages(authenticator=auth),
             Profiles(authenticator=auth),
-            Tinyurls(authenticator=auth),
+            TinyUrls(authenticator=auth),
         ]
 
 
-class Tinyurls(MobileCommonsStream):
+class TinyUrls(MobileCommonsStream):
     """
     """
 
