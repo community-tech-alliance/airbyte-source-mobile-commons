@@ -2,43 +2,134 @@
     "streams": [
         {
             "stream": {
-                "name": "campaign_subscribers",
+                "name": "calls",
                 "supported_sync_modes": [
                     "full_refresh"
                 ],
                 "json_schema": {
-                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "$schema": "http://json-schema.org/draft-07/schema#",
                     "type": "object",
                     "properties": {
                         "id": {
+                            "type": "string"
+                        },
+                        "start_time": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "profile_id": {
+                        "end_time": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "phone_number": {
+                        "duration": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "activated_at": {
+                        "call_status": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "opted_out_at": {
+                        "connection_source": {
                             "type": [
                                 "string",
                                 "null"
                             ]
+                        },
+                        "email": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "profile_status": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "profile_status_at_call_time": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "handset_number": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "carrier_name": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "voip_number": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "destination_number": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "transcription": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "voicemail_duration": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "voicemail": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "mconnect": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            }
+                        },
+                        "profile": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            }
                         }
                     }
                 }
@@ -46,5 +137,5 @@
             "sync_mode": "full_refresh",
             "destination_sync_mode": "overwrite"
         }
-   ]
+    ]
 }
