@@ -43,13 +43,11 @@ class MobileCommonsStream(HttpStream, ABC):
         *args,
         username: str = None,
         password: str = None,
-        campaign_id: str = None,
         **kwargs
     ):
         super().__init__(*args, **kwargs)
         self._username = username
         self._password = password
-        self.campaign_id = campaign_id
         self.object_name = None
         self.array_name = None
         self.force_list = None
@@ -171,8 +169,6 @@ class CampaignSubscribers(HttpSubStream, MobileCommonsStream):
     ) -> MutableMapping[str, Any]:
         params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
         params.update({"campaign_id": stream_slice["campaign_id"]})
-        # params.update({"campaign_id": 224167})
-
 
         return params
 
@@ -421,10 +417,7 @@ class SourceMobileCommons(AbstractSource):
         return [
             Broadcasts(authenticator=auth),
             Campaigns(authenticator=auth),
-            CampaignSubscribers(
-                authenticator=auth,
-                campaign_id=config.get('campaign_id')
-            ),
+            CampaignSubscribers(authenticator=auth),
             IncomingMessages(authenticator=auth),
             Keywords(authenticator=auth),
             OutgoingMessages(authenticator=auth),
