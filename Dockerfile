@@ -34,5 +34,5 @@ COPY source_mobile_commons ./source_mobile_commons
 ENV AIRBYTE_ENTRYPOINT "python /airbyte/integration_code/main.py"
 ENTRYPOINT ["python", "/airbyte/integration_code/main.py"]
 
-LABEL io.airbyte.version=0.0.3
+LABEL io.airbyte.version=0.0.4
 LABEL io.airbyte.name=communitytechalliance/airbyte-source-mobile-commons
