@@ -1019,6 +1019,46 @@
             },
             "sync_mode": "full_refresh",
             "destination_sync_mode": "overwrite"
+        },
+        {
+            "stream": {
+                "name": "clicks",
+                "supported_sync_modes": [
+                    "full_refresh"
+                ],
+                "json_schema": {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "created_at": {
+                          "type": ["string", "null"]
+                        },
+                        "url": {
+                          "type": ["string", "null"]
+                        },
+                        "clicked_url": {
+                          "type": ["string", "null"]
+                        },
+                        "remote_addr": {
+                          "type": ["string", "null"]
+                        },
+                        "http_referer": {
+                          "type": ["string", "null"]
+                        },
+                        "user_agent": {
+                          "type": ["string", "null"]
+                        },
+                        "profile_id": {
+                            "type": ["string", "null"]
+                        }
+                    }
+                }
+            },
+            "sync_mode": "full_refresh",
+            "destination_sync_mode": "overwrite"
         }
     ]
 }
