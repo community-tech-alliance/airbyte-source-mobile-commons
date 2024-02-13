@@ -2,42 +2,37 @@
     "streams": [
         {
             "stream": {
-                "name": "calls",
+                "name": "profiles",
                 "supported_sync_modes": [
-                    "full_refresh"
+                    "full_refresh",
+                    "incremental"
                 ],
                 "json_schema": {
                     "$schema": "http://json-schema.org/draft-07/schema#",
-                    "type": "object",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
                     "properties": {
                         "id": {
-                            "type": "string"
-                        },
-                        "start_time": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "end_time": {
+                        "first_name": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "duration": {
+                        "last_name": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "call_status": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "connection_source": {
+                        "phone_number": {
                             "type": [
                                 "string",
                                 "null"
@@ -49,67 +44,67 @@
                                 "null"
                             ]
                         },
-                        "profile_status": {
+                        "status": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "profile_status_at_call_time": {
+                        "created_at": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "handset_number": {
+                        "updated_at": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "carrier_name": {
+                        "opted_out_at": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "voip_number": {
+                        "opted_out_source": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "destination_number": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "transcription": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "voicemail_duration": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "voicemail": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "mconnect": {
+                        "source": {
                             "type": [
                                 "object",
                                 "null"
                             ],
                             "properties": {
+                                "type": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "name": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
                                 "id": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "opt_in_path_id": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "message_id": {
                                     "type": [
                                         "string",
                                         "null"
@@ -117,24 +112,279 @@
                                 }
                             }
                         },
-                        "profile": {
+                        "address": {
                             "type": [
                                 "object",
                                 "null"
                             ],
                             "properties": {
-                                "id": {
+                                "street1": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "street2": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "city": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "state": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "postal_code": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "country": {
                                     "type": [
                                         "string",
                                         "null"
                                     ]
                                 }
                             }
+                        },
+                        "last_saved_location": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "latitude": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "longitude": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "precision": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "city": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "state": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "postal_code": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "country": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            }
+                        },
+                        "last_saved_districts": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "congressional_district": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "state_upper_district": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "state_lower_district": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "split_district": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            }
+                        },
+                        "custom_columns": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "custom_column": {
+                                    "type": "array",
+                                    "items": [
+                                        {
+                                            "type": [
+                                                "object",
+                                                "null"
+                                            ],
+                                            "properties": {
+                                                "name": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "subscriptions": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "subscription": {
+                                    "type": [
+                                        "object",
+                                        "null"
+                                    ],
+                                    "properties": {
+                                        "campaign_id": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "campaign_name": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "campaign_description": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "opt_in_path_id": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "status": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "opt_in_source": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "created_at": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "activated_at": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "opted_out_at": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "opt_out_source": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "integrations": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "integration": {
+                                    "type": [
+                                        "object",
+                                        "null"
+                                    ],
+                                    "properties": {
+                                        "constituent_id": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "type": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "synchronized_at": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "clicks": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         }
                     }
                 }
             },
-            "sync_mode": "full_refresh",
+            "sync_mode": "incremental",
             "destination_sync_mode": "overwrite"
         }
     ]

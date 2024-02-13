@@ -10,8 +10,11 @@ import requests
 from airbyte_cdk.models import SyncMode
 from airbyte_cdk.sources import AbstractSource
 from airbyte_cdk.sources.streams import Stream
+from airbyte_cdk.sources.streams.availability_strategy import AvailabilityStrategy
 from airbyte_cdk.sources.streams.http import HttpStream, HttpSubStream
-from airbyte_cdk.sources.streams.http.auth import TokenAuthenticator
+# from airbyte_cdk.sources.streams.http.auth import TokenAuthenticator
+from airbyte_cdk.sources.streams import IncrementalMixin
+from datetime import datetime, timedelta
 import json
 import sys
 import xmltodict
@@ -384,15 +387,20 @@ class OutgoingMessages(MobileCommonsStream):
 
 
 # class Profiles(IncrementalMobileCommonsStream):
-class Profiles(MobileCommonsStream):
+class Profiles(MobileCommonsStream, IncrementalMixin):
     """
     """
 
-    def __init__(self, *args, **kwargs):
+    cursor_field = "updated_at"
+    primary_key = "id"
+
+    def __init__(self, start_date: datetime, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.object_name = 'profiles'
         self.array_name = 'profile'
         self.force_list=['profile', 'custom_column', 'integration', 'subscription']
+        self.start_date = start_date
+        self._cursor_value = None
         self.custom_params = {
             "include_custom_columns": True,
             "include_subscriptions": True,
@@ -400,17 +408,77 @@ class Profiles(MobileCommonsStream):
             "include_members": False,
         }
 
-    # TODO: Fill in the cursor_field. Required.
-    # cursor_field = "updated_at"
+    def _chunk_date_range(self, start_date: datetime) -> List[Mapping[str, Any]]:
+        """
+        Returns a list of each day between the start date and now.
+        The return value is a list of dicts {'date': date_string}.
+        """
+        dates = []
+        while start_date < datetime.now():
+            from_to_dates = {
+                "from": start_date.strftime('%Y-%m-%d'),
+                "to": (start_date + timedelta(days=1)).strftime('%Y-%m-%d')
+            }
+            dates.append(from_to_dates)
+            start_date += timedelta(days=1)
+        return dates[0:10]
+    
+    def stream_slices(
+        self,
+        sync_mode,
+        cursor_field: List[str] = None,
+        stream_state: Mapping[str, Any] = None
+    ) -> Iterable[Optional[Mapping[str, Any]]]:
+        if stream_state and self.cursor_field in stream_state:
+            print('Found stream_state. Starting where we left off...')
+            start_date = datetime.strptime(stream_state[self.cursor_field], '%Y-%m-%d')
+        else:
+            print('No stream state. Starting from the beginning...') 
+            start_date = self.start_date
+        return self._chunk_date_range(start_date)
 
-    primary_key = "id"
+    @property
+    def availability_strategy(self) -> Optional[AvailabilityStrategy]:
+        return None
+
+    @property
+    def state(self) -> Mapping[str, Any]:
+        print("Getting state...")
+        if self._cursor_value:
+            print("_cursor_value exists!!")
+            return {self.cursor_field: self._cursor_value.strftime('%Y-%m-%d')}
+        else:
+            print("_cursor_value does not exists...")
+            return {self.cursor_field: self.start_date.strftime('%Y-%m-%d')}
+    
+    @state.setter
+    def state(self, value: Mapping[str, Any]):
+        self._cursor_value = datetime.strptime(value[self.cursor_field], '%Y-%m-%d')
+
+    def read_records(self, *args, **kwargs) -> Iterable[Mapping[str, Any]]:
+        for record in super().read_records(*args, **kwargs):
+            print(f"self._cursor_value: {self._cursor_value}")
+            if self._cursor_value:
+                latest_record_date = datetime.strptime(record[self.cursor_field], '%Y-%m-%d %H:%M:%S %Z')
+                print(f"This:{max(self._cursor_value, latest_record_date)}")
+                print(f"Before:{self._cursor_value}")
+                self._cursor_value = max(self._cursor_value, latest_record_date)
+                print(f"After:{self._cursor_value}")
+            yield record
+
 
     def request_params(
         self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
     ) -> MutableMapping[str, Any]:
         params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
         params.update(self.custom_params)
-
+        params.update(
+            {
+                "from": stream_slice["from"],
+                "to": stream_slice["to"]
+            }
+        )
+        print(params)
         return params
 
     def path(self, **kwargs) -> str:
@@ -477,6 +545,7 @@ class SourceMobileCommons(AbstractSource):
         :param config: A Mapping of the user input configuration as defined in the connector spec.
         """
         auth = self.get_basic_auth(config)
+        start_date = datetime.strptime(config['start_date'], '%Y-%m-%d')
         return [
             Broadcasts(authenticator=auth),
             Calls(authenticator=auth),
@@ -486,5 +555,5 @@ class SourceMobileCommons(AbstractSource):
             Keywords(authenticator=auth),
             MConnects(authenticator=auth),
             OutgoingMessages(authenticator=auth),
-            Profiles(authenticator=auth),
+            Profiles(authenticator=auth, start_date=start_date),
         ]
