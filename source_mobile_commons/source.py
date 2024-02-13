@@ -264,12 +264,14 @@ class Clicks(MobileCommonsStream):
         self.force_list = [self.array_name]
         self.custom_params = {
             "include_profile": False,
-            "total_link_clicks": False,
-            "url_id": 3052246
+            "total_link_clicks": False
         }
 
-    # TODO: Fill in the cursor_field. Required.
-    # cursor_field = "updated_at"
+    def stream_slices(
+        self, sync_mode: SyncMode, cursor_field: List[str] = None, stream_state: Mapping[str, Any] = None
+    ) -> Iterable[Optional[Mapping[str, Any]]]:
+        for tiny_url in self.parent.read_records(sync_mode=SyncMode.full_refresh):
+            yield {"url_id": tiny_url["id"]}
 
     primary_key = "id"
 
@@ -277,7 +279,7 @@ class Clicks(MobileCommonsStream):
         self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
     ) -> MutableMapping[str, Any]:
         params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
-        params.update(self.custom_params)
+        params.update({"url_id": stream_slice["url_id"]})
 
         return params
 
