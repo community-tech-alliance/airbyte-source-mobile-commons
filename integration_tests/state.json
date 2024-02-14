@@ -1,5 +1,10 @@
-{
-  "profiles": {
-    "updated_at": "2021-09-09"
+[
+  {
+    "streamDescriptor": {
+      "name": "profiles"
+    },
+    "streamState": {
+      "updated_at": "2024-02-13"
+    }
   }
-}
+]

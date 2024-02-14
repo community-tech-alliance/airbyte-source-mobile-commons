@@ -357,7 +357,7 @@ class OutgoingMessages(MobileCommonsStream, IncrementalMixin):
             }
             datetimes.append(start_end_datetimes)
             start_date += timedelta(days=1)
-        return datetimes
+        return datetimes[0:100]
 
     def stream_slices(
         self,
