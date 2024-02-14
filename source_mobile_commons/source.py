@@ -461,12 +461,9 @@ class OutgoingMessages(MobileCommonsStream, IncrementalMixin):
 
     @property
     def state(self) -> Mapping[str, Any]:
-        print("Getting state...")
         if self._cursor_value:
-            print("_cursor_value exists!!")
             return {self.cursor_field: self._cursor_value.strftime('%Y-%m-%d %H:%M:%S %Z')}
         else:
-            print("_cursor_value does not exists...")
             return {self.cursor_field: self.start_datetime.strftime('%Y-%m-%d %H:%M:%S %Z')}
     
     @state.setter
@@ -478,21 +475,17 @@ class OutgoingMessages(MobileCommonsStream, IncrementalMixin):
     ) -> MutableMapping[str, Any]:
         params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
         params.update(self.custom_params)
-        # print(stream_slice)
         params.update(
             {
                 "start_time": stream_slice["start_time"],
                 "end_time": stream_slice["end_time"]
             }
         )
-        # print(params)
         return params
 
     def read_records(self, *args, **kwargs) -> Iterable[Mapping[str, Any]]:
         for record in super().read_records(*args, **kwargs):
             latest_record_date = datetime.strptime(record[self.cursor_field], '%Y-%m-%d %H:%M:%S %Z').replace(tzinfo=timezone.utc)
-            # print(self._cursor_value)
-            # print(latest_record_date)
             if self._cursor_value:
                 self._cursor_value = max(self._cursor_value, latest_record_date)
             else:
@@ -563,12 +556,9 @@ class Profiles(MobileCommonsStream, IncrementalMixin):
 
     @property
     def state(self) -> Mapping[str, Any]:
-        print("Getting state...")
         if self._cursor_value:
-            print("_cursor_value exists!!")
             return {self.cursor_field: self._cursor_value.strftime('%Y-%m-%d %H:%M:%S %Z')}
         else:
-            print("_cursor_value does not exists...")
             return {self.cursor_field: self.start_datetime.strftime('%Y-%m-%d %H:%M:%S %Z')}
     
     @state.setter
@@ -597,7 +587,7 @@ class Profiles(MobileCommonsStream, IncrementalMixin):
                 "to": stream_slice["end_time"]
             }
         )
-        # print(params)
+
         return params
 
     def path(self, **kwargs) -> str:
