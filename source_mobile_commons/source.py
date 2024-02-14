@@ -106,7 +106,7 @@ class MobileCommonsStream(HttpStream, ABC):
         )['response']
     
         data = response_dict[self.object_name].get(self.array_name)
-        # print(json.dumps(data[0]))
+        # print(json.dumps(data))
         # sys.exit()
         if data:
             yield from data
@@ -225,6 +225,49 @@ class CampaignSubscribers(HttpSubStream, MobileCommonsStream):
     """
 
     def __init__(self, **kwargs):
+        super().__init__(parent=MConnects, **kwargs)
+        self.parent = MConnects(**kwargs)
+        self.object_name = 'calls'
+        self.array_name = 'call'
+        self.force_list=[self.array_name]
+
+    def stream_slices(
+        self, sync_mode: SyncMode, cursor_field: List[str] = None, stream_state: Mapping[str, Any] = None
+    ) -> Iterable[Optional[Mapping[str, Any]]]:
+        for mconnect in self.parent.read_records(sync_mode=SyncMode.full_refresh):
+            yield {"mconnect_id": mconnect["id"]}
+
+
+    primary_key = "id"
+
+    def request_params(
+        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> MutableMapping[str, Any]:
+        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
+        params.update(
+            {
+                "mconnect_id": stream_slice["mconnect_id"],
+                "include_profile": True,
+                "include_profile_id_only": True,
+                "limit": 1000
+            }
+        )
+
+        return params
+
+    def path(
+        self, stream_state: Mapping[str, Any] = None, stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> str:
+
+        return "calls"
+
+
+
+class CampaignSubscribers(HttpSubStream, MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, **kwargs):
         super().__init__(parent=Campaigns, **kwargs)
         self.parent = Campaigns(**kwargs)
         self.object_name = 'subscriptions'
@@ -253,6 +296,44 @@ class CampaignSubscribers(HttpSubStream, MobileCommonsStream):
     ) -> str:
 
         return "campaign_subscribers"
+
+
+class Clicks(HttpSubStream, MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(parent=TinyUrls, **kwargs)
+        self.parent = TinyUrls(**kwargs)
+        self.object_name = 'clicks'
+        self.array_name = 'click'
+        self.force_list = [self.array_name]
+        self.custom_params = {
+            "include_profile": False,
+            "total_link_clicks": False
+        }
+
+    def stream_slices(
+        self, sync_mode: SyncMode, cursor_field: List[str] = None, stream_state: Mapping[str, Any] = None
+    ) -> Iterable[Optional[Mapping[str, Any]]]:
+        for tiny_url in self.parent.read_records(sync_mode=SyncMode.full_refresh):
+            yield {"url_id": tiny_url["id"]}
+
+    primary_key = "id"
+
+    def request_params(
+        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> MutableMapping[str, Any]:
+        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
+        params.update({"url_id": stream_slice["url_id"]})
+
+        return params
+
+    def path(
+        self, stream_state: Mapping[str, Any] = None, stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> str:
+
+        return "clicks"
 
 
 class IncomingMessages(MobileCommonsStream):
@@ -325,7 +406,6 @@ class MConnects(MobileCommonsStream):
         """
         return "mconnects"
 
-
 class OutgoingMessages(MobileCommonsStream, IncrementalMixin):
     """
     """
@@ -381,12 +461,9 @@ class OutgoingMessages(MobileCommonsStream, IncrementalMixin):
 
     @property
     def state(self) -> Mapping[str, Any]:
-        print("Getting state...")
         if self._cursor_value:
-            print("_cursor_value exists!!")
             return {self.cursor_field: self._cursor_value.strftime('%Y-%m-%d %H:%M:%S %Z')}
         else:
-            print("_cursor_value does not exists...")
             return {self.cursor_field: self.start_datetime.strftime('%Y-%m-%d %H:%M:%S %Z')}
     
     @state.setter
@@ -398,21 +475,17 @@ class OutgoingMessages(MobileCommonsStream, IncrementalMixin):
     ) -> MutableMapping[str, Any]:
         params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
         params.update(self.custom_params)
-        print(stream_slice)
         params.update(
             {
                 "start_time": stream_slice["start_time"],
                 "end_time": stream_slice["end_time"]
             }
         )
-        print(params)
         return params
 
     def read_records(self, *args, **kwargs) -> Iterable[Mapping[str, Any]]:
         for record in super().read_records(*args, **kwargs):
             latest_record_date = datetime.strptime(record[self.cursor_field], '%Y-%m-%d %H:%M:%S %Z').replace(tzinfo=timezone.utc)
-            # print(self._cursor_value)
-            # print(latest_record_date)
             if self._cursor_value:
                 self._cursor_value = max(self._cursor_value, latest_record_date)
             else:
@@ -483,12 +556,9 @@ class Profiles(MobileCommonsStream, IncrementalMixin):
 
     @property
     def state(self) -> Mapping[str, Any]:
-        print("Getting state...")
         if self._cursor_value:
-            print("_cursor_value exists!!")
             return {self.cursor_field: self._cursor_value.strftime('%Y-%m-%d %H:%M:%S %Z')}
         else:
-            print("_cursor_value does not exists...")
             return {self.cursor_field: self.start_datetime.strftime('%Y-%m-%d %H:%M:%S %Z')}
     
     @state.setter
@@ -517,7 +587,7 @@ class Profiles(MobileCommonsStream, IncrementalMixin):
                 "to": stream_slice["end_time"]
             }
         )
-        print(params)
+
         return params
 
     def path(self, **kwargs) -> str:
@@ -525,6 +595,25 @@ class Profiles(MobileCommonsStream, IncrementalMixin):
         """
         return "profiles"
 
+class TinyUrls(MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = 'tinyurls'
+        self.array_name = 'tinyurl'
+        self.force_list = [self.array_name]
+
+    # TODO: Fill in the cursor_field. Required.
+    # cursor_field = "updated_at"
+
+    primary_key = "id"
+
+    def path(self, **kwargs) -> str:
+        """
+        """
+        return "tinyurls"
 
 # Source
 class SourceMobileCommons(AbstractSource):
@@ -568,9 +657,12 @@ class SourceMobileCommons(AbstractSource):
             Calls(authenticator=auth),
             Campaigns(authenticator=auth),
             CampaignSubscribers(authenticator=auth),
+            Clicks(authenticator=auth),
             IncomingMessages(authenticator=auth),
             Keywords(authenticator=auth),
             MConnects(authenticator=auth),
+            TinyUrls(authenticator=auth),
             OutgoingMessages(authenticator=auth, start_datetime=start_datetime),
             Profiles(authenticator=auth, start_datetime=start_datetime),
         ]
+

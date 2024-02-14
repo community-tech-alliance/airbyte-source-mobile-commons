@@ -2,7 +2,7 @@
     "streams": [
         {
             "stream": {
-                "name": "outgoing_messages",
+                "name": "clicks",
                 "supported_sync_modes": [
                     "full_refresh",
                     "incremental"
@@ -12,101 +12,28 @@
                     "type": "object",
                     "properties": {
                         "id": {
-                            "type": "string"
+                          "type": "string"
                         },
-                        "type": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
+                        "created_at": {
+                          "type": ["string", "null"]
                         },
-                        "status": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
+                        "url": {
+                          "type": ["string", "null"]
                         },
-                        "phone_number": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
+                        "clicked_url": {
+                          "type": ["string", "null"]
                         },
-                        "profile": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
+                        "remote_addr": {
+                          "type": ["string", "null"]
                         },
-                        "body": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
+                        "http_referer": {
+                          "type": ["string", "null"]
                         },
-                        "sent_at": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
+                        "user_agent": {
+                          "type": ["string", "null"]
                         },
-                        "message_template_id": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "mms": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "multipart": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "campaign": {
-                            "type": [
-                                "object",
-                                "null"
-                            ],
-                            "properties": {
-                                "id": {
-                                    "type": [
-                                        "string",
-                                        "null"
-                                    ]
-                                },
-                                "active": {
-                                    "type": [
-                                        "string",
-                                        "null"
-                                    ]
-                                },
-                                "name": {
-                                    "type": [
-                                        "string",
-                                        "null"
-                                    ]
-                                }
-                            }
-                        },
-                        "previous_id": {
-                            "type": [
-                                "object",
-                                "null"
-                            ],
-                            "properties": {
-                                "id": {
-                                    "type": [
-                                        "string",
-                                        "null"
-                                    ]
-                                }
-                            }
+                        "profile_id": {
+                            "type": ["string", "null"]
                         }
                     }
                 }
