@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "active": {
+      "type": ["string", "null"]
+    },
+    "name": {
+      "type": ["string", "null"]
+    },
+    "destination_number": {
+      "type": ["string", "null"]
+    },
+    "destination_description": {
+      "type": ["string", "null"]
+    },
+    "voip_number": {
+      "type": ["string", "null"]
+    },
+    "call_type": {
+      "type": ["string", "null"]
+    },
+    "autoroute": {
+      "type": ["string", "null"]
+    },
+    "subscriber_follow_up": {
+      "type": ["string", "null"]
+    },
+    "nonsubscriber_follow_up": {
+      "type": ["string", "null"]
+    },
+    "call_timeout": {
+      "type": ["string", "null"]
+    },
+    "failover_number": {
+      "type": ["string", "null"]
+    },
+    "failover_text": {
+      "type": ["string", "null"]
+    },
+    "voicemail": {
+      "type": ["string", "null"]
+    },
+    "transcribe": {
+      "type": ["string", "null"]
+    },
+    "shortcode": {
+      "type": ["string", "null"]
+    },
+    "crm_alert_id": {
+      "type": ["string", "null"]
+    },
+    "tags": {
+      "type": ["object", "null"],
+      "properties": {
+        "tag": {
+          "type": ["string", "null"]
+        }
+      }
+    }
+  }
+}
