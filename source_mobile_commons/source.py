@@ -253,12 +253,13 @@ class CampaignSubscribers(HttpSubStream, MobileCommonsStream):
         return "campaign_subscribers"
 
 
-class Clicks(MobileCommonsStream):
+class Clicks(HttpSubStream, MobileCommonsStream):
     """
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(parent=TinyUrls, **kwargs)
+        self.parent = TinyUrls(**kwargs)
         self.object_name = 'clicks'
         self.array_name = 'click'
         self.force_list = [self.array_name]
