@@ -478,14 +478,14 @@ class OutgoingMessages(MobileCommonsStream, IncrementalMixin):
     ) -> MutableMapping[str, Any]:
         params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
         params.update(self.custom_params)
-        print(stream_slice)
+        # print(stream_slice)
         params.update(
             {
                 "start_time": stream_slice["start_time"],
                 "end_time": stream_slice["end_time"]
             }
         )
-        print(params)
+        # print(params)
         return params
 
     def read_records(self, *args, **kwargs) -> Iterable[Mapping[str, Any]]:
@@ -597,7 +597,7 @@ class Profiles(MobileCommonsStream, IncrementalMixin):
                 "to": stream_slice["end_time"]
             }
         )
-        print(params)
+        # print(params)
         return params
 
     def path(self, **kwargs) -> str:
