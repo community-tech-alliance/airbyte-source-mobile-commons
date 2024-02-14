@@ -5,13 +5,15 @@
 
 from abc import ABC
 from typing import Any, Iterable, List, Mapping, MutableMapping, Optional, Tuple
-
 import requests
 from airbyte_cdk.models import SyncMode
 from airbyte_cdk.sources import AbstractSource
 from airbyte_cdk.sources.streams import Stream
+from airbyte_cdk.sources.streams.availability_strategy import AvailabilityStrategy
 from airbyte_cdk.sources.streams.http import HttpStream, HttpSubStream
-from airbyte_cdk.sources.streams.http.auth import TokenAuthenticator
+# from airbyte_cdk.sources.streams.http.auth import TokenAuthenticator
+from airbyte_cdk.sources.streams import IncrementalMixin
+from datetime import datetime, timedelta, timezone
 import json
 import sys
 import xmltodict
@@ -283,34 +285,6 @@ class IncomingMessages(MobileCommonsStream):
         return "messages"
 
 
-# Basic incremental stream
-class IncrementalMobileCommonsStream(MobileCommonsStream, ABC):
-    """
-    TODO fill in details of this class to implement functionality related to incremental syncs for your connector.
-         if you do not need to implement incremental sync for any streams, remove this class.
-    """
-
-    # TODO: Fill in to checkpoint stream reads after N records. This prevents re-reading of data if the stream fails for any reason.
-    state_checkpoint_interval = None
-
-    @property
-    def cursor_field(self) -> str:
-        """
-        TODO
-        Override to return the cursor field used by this stream e.g: an API entity might always use created_at as the cursor field. This is
-        usually id or date based. This field's presence tells the framework this in an incremental stream. Required for incremental.
-
-        :return str: The name of the cursor field.
-        """
-        return []
-
-    def get_updated_state(self, current_stream_state: MutableMapping[str, Any], latest_record: Mapping[str, Any]) -> Mapping[str, Any]:
-        """
-        Override to determine the latest state after reading the latest record. This typically compared the cursor_field from the latest record and
-        the current state and picks the 'most' recent cursor. This is how a stream's state is determined. Required for incremental.
-        """
-        return {}
-
 class Keywords(MobileCommonsStream):
     """
     """
@@ -352,29 +326,98 @@ class MConnects(MobileCommonsStream):
         return "mconnects"
 
 
-class OutgoingMessages(MobileCommonsStream):
+class OutgoingMessages(MobileCommonsStream, IncrementalMixin):
     """
     """
 
-    def __init__(self, *args, **kwargs):
+    cursor_field = "sent_at"
+    primary_key = "id"
+
+    def __init__(self, start_datetime: datetime, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.object_name = 'messages'
         self.array_name = 'message'
         self.force_list=['message']
+        self.start_datetime = start_datetime
+        self._cursor_value = None
         self.custom_params = {
-            "limit": 1000,
-            "start_time": "2024-01-01" # Adding temporarily
+            "limit": 1000
         }
 
-    primary_key = "id"
+    def _chunk_datetime_range(self, start_date: datetime) -> List[Mapping[str, Any]]:
+        """
+        Returns a list of each day between the start date and now.
+        The return value is a list of dicts {'date': date_string}.
+        """
+        datetimes = []
+        while start_date < datetime.utcnow().replace(tzinfo=timezone.utc):
+            start_end_datetimes = {
+                "start_time": datetime.strftime(start_date, "%Y-%m-%d %H:%M:%S %Z"),
+                "end_time": (start_date + timedelta(days=1)).replace(minute=0, second=0, microsecond=0).strftime("%Y-%m-%d %H:%M:%S %Z")
+            }
+            datetimes.append(start_end_datetimes)
+            start_date += timedelta(days=1)
+        return datetimes[0:100]
+
+    def stream_slices(
+        self,
+        sync_mode,
+        cursor_field: List[str] = None,
+        stream_state: Mapping[str, Any] = None
+    ) -> Iterable[Optional[Mapping[str, Any]]]:
+        if stream_state and self.cursor_field in stream_state:
+            print('Found stream_state. Starting where we left off...')
+            start_datetime = datetime.strptime(stream_state[self.cursor_field], '%Y-%m-%d %H:%M:%S %Z').replace(tzinfo=timezone.utc)
+
+        else:
+            print('No stream state. Starting from the beginning...') 
+            start_datetime = self.start_datetime
+        return self._chunk_datetime_range(start_datetime)
+
+
+    @property
+    def availability_strategy(self) -> Optional[AvailabilityStrategy]:
+        return None
+
+    @property
+    def state(self) -> Mapping[str, Any]:
+        print("Getting state...")
+        if self._cursor_value:
+            print("_cursor_value exists!!")
+            return {self.cursor_field: self._cursor_value.strftime('%Y-%m-%d %H:%M:%S %Z')}
+        else:
+            print("_cursor_value does not exists...")
+            return {self.cursor_field: self.start_datetime.strftime('%Y-%m-%d %H:%M:%S %Z')}
+    
+    @state.setter
+    def state(self, value: Mapping[str, Any]):
+        self._cursor_value = datetime.strptime(value[self.cursor_field], '%Y-%m-%d %H:%M:%S %Z').replace(tzinfo=timezone.utc)
 
     def request_params(
         self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
     ) -> MutableMapping[str, Any]:
         params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
         params.update(self.custom_params)
-
+        print(stream_slice)
+        params.update(
+            {
+                "start_time": stream_slice["start_time"],
+                "end_time": stream_slice["end_time"]
+            }
+        )
+        print(params)
         return params
+
+    def read_records(self, *args, **kwargs) -> Iterable[Mapping[str, Any]]:
+        for record in super().read_records(*args, **kwargs):
+            latest_record_date = datetime.strptime(record[self.cursor_field], '%Y-%m-%d %H:%M:%S %Z').replace(tzinfo=timezone.utc)
+            # print(self._cursor_value)
+            # print(latest_record_date)
+            if self._cursor_value:
+                self._cursor_value = max(self._cursor_value, latest_record_date)
+            else:
+                self._cursor_value = latest_record_date
+            yield record
 
     def path(
         self, stream_state: Mapping[str, Any] = None, stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
@@ -383,16 +426,20 @@ class OutgoingMessages(MobileCommonsStream):
         return "sent_messages"
 
 
-# class Profiles(IncrementalMobileCommonsStream):
-class Profiles(MobileCommonsStream):
+class Profiles(MobileCommonsStream, IncrementalMixin):
     """
     """
 
-    def __init__(self, *args, **kwargs):
+    cursor_field = "updated_at"
+    primary_key = "id"
+
+    def __init__(self, start_datetime: datetime, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.object_name = 'profiles'
         self.array_name = 'profile'
         self.force_list=['profile', 'custom_column', 'integration', 'subscription']
+        self.start_datetime = start_datetime
+        self._cursor_value = None
         self.custom_params = {
             "include_custom_columns": True,
             "include_subscriptions": True,
@@ -400,45 +447,83 @@ class Profiles(MobileCommonsStream):
             "include_members": False,
         }
 
-    # TODO: Fill in the cursor_field. Required.
-    # cursor_field = "updated_at"
+    def _chunk_datetime_range(self, start_date: datetime) -> List[Mapping[str, Any]]:
+        """
+        Returns a list of each day between the start date and now.
+        The return value is a list of dicts {'date': date_string}.
+        """
+        datetimes = []
+        while start_date < datetime.utcnow().replace(tzinfo=timezone.utc):
+            start_end_datetimes = {
+                "start_time": datetime.strftime(start_date, "%Y-%m-%d %H:%M:%S %Z"),
+                "end_time": (start_date + timedelta(days=1)).replace(minute=0, second=0, microsecond=0).strftime("%Y-%m-%d %H:%M:%S %Z")
+            }
+            datetimes.append(start_end_datetimes)
+            start_date += timedelta(days=1)
+        return datetimes
 
-    primary_key = "id"
+    def stream_slices(
+        self,
+        sync_mode,
+        cursor_field: List[str] = None,
+        stream_state: Mapping[str, Any] = None
+    ) -> Iterable[Optional[Mapping[str, Any]]]:
+        if stream_state and self.cursor_field in stream_state:
+            print('Found stream_state. Starting where we left off...')
+            start_datetime = datetime.strptime(stream_state[self.cursor_field], '%Y-%m-%d %H:%M:%S %Z').replace(tzinfo=timezone.utc)
+
+        else:
+            print('No stream state. Starting from the beginning...') 
+            start_datetime = self.start_datetime
+        return self._chunk_datetime_range(start_datetime)
+
+    @property
+    def availability_strategy(self) -> Optional[AvailabilityStrategy]:
+        return None
+
+    @property
+    def state(self) -> Mapping[str, Any]:
+        print("Getting state...")
+        if self._cursor_value:
+            print("_cursor_value exists!!")
+            return {self.cursor_field: self._cursor_value.strftime('%Y-%m-%d %H:%M:%S %Z')}
+        else:
+            print("_cursor_value does not exists...")
+            return {self.cursor_field: self.start_datetime.strftime('%Y-%m-%d %H:%M:%S %Z')}
+    
+    @state.setter
+    def state(self, value: Mapping[str, Any]):
+        self._cursor_value = datetime.strptime(value[self.cursor_field], '%Y-%m-%d %H:%M:%S %Z').replace(tzinfo=timezone.utc)
+
+    def read_records(self, *args, **kwargs) -> Iterable[Mapping[str, Any]]:
+        for record in super().read_records(*args, **kwargs):
+            latest_record_date = datetime.strptime(record[self.cursor_field], '%Y-%m-%d %H:%M:%S %Z').replace(tzinfo=timezone.utc)
+
+            if self._cursor_value:
+                self._cursor_value = max(self._cursor_value, latest_record_date)
+            else:
+                self._cursor_value = latest_record_date
+            yield record
+
 
     def request_params(
         self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
     ) -> MutableMapping[str, Any]:
         params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
         params.update(self.custom_params)
-
+        params.update(
+            {
+                "from": stream_slice["start_time"],
+                "to": stream_slice["end_time"]
+            }
+        )
+        print(params)
         return params
 
     def path(self, **kwargs) -> str:
         """
         """
         return "profiles"
-
-    # def stream_slices(self, stream_state: Mapping[str, Any] = None, **kwargs) -> Iterable[Optional[Mapping[str, any]]]:
-    #     """
-    #     TODO: Optionally override this method to define this stream's slices. If slicing is not needed, delete this method.
-
-    #     Slices control when state is saved. Specifically, state is saved after a slice has been fully read.
-    #     This is useful if the API offers reads by groups or filters, and can be paired with the state object to make reads efficient. See the "concepts"
-    #     section of the docs for more information.
-
-    #     The function is called before reading any records in a stream. It returns an Iterable of dicts, each containing the
-    #     necessary data to craft a request for a slice. The stream state is usually referenced to determine what slices need to be created.
-    #     This means that data in a slice is usually closely related to a stream's cursor_field and stream_state.
-
-    #     An HTTP request is made for each returned slice. The same slice can be accessed in the path, request_params and request_header functions to help
-    #     craft that specific request.
-
-    #     For example, if https://example-api.com/v1/employees offers a date query params that returns data for that particular day, one way to implement
-    #     this would be to consult the stream state object for the last synced date, then return a slice containing each date from the last synced date
-    #     till now. The request_params function would then grab the date from the stream_slice and make it part of the request by injecting it into
-    #     the date query param.
-    #     """
-    #     raise NotImplementedError("Implement stream slices or delete this method!")
 
 
 # Source
@@ -477,6 +562,7 @@ class SourceMobileCommons(AbstractSource):
         :param config: A Mapping of the user input configuration as defined in the connector spec.
         """
         auth = self.get_basic_auth(config)
+        start_datetime = datetime.strptime(config['start_date'], '%Y-%m-%d').replace(tzinfo=timezone.utc)
         return [
             Broadcasts(authenticator=auth),
             Calls(authenticator=auth),
@@ -485,6 +571,6 @@ class SourceMobileCommons(AbstractSource):
             IncomingMessages(authenticator=auth),
             Keywords(authenticator=auth),
             MConnects(authenticator=auth),
-            OutgoingMessages(authenticator=auth),
-            Profiles(authenticator=auth),
+            OutgoingMessages(authenticator=auth, start_datetime=start_datetime),
+            Profiles(authenticator=auth, start_datetime=start_datetime),
         ]

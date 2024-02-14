@@ -6,6 +6,7 @@ connectionSpecification:
   required:
     - username
     - password
+    - start_date
   properties:
     username:
       type: string
@@ -15,3 +16,7 @@ connectionSpecification:
       type: string
       description: Mobile Commons password
       airbyte_secret: true
+    start_date:
+      type: string
+      description: The earliest date (e.g. "YYYY-MM-DD") you wish to sync 
+      airbyte_secret: false

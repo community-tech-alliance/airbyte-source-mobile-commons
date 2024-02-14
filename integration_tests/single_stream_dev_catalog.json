@@ -2,9 +2,10 @@
     "streams": [
         {
             "stream": {
-                "name": "calls",
+                "name": "outgoing_messages",
                 "supported_sync_modes": [
-                    "full_refresh"
+                    "full_refresh",
+                    "incremental"
                 ],
                 "json_schema": {
                     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -13,97 +14,61 @@
                         "id": {
                             "type": "string"
                         },
-                        "start_time": {
+                        "type": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "end_time": {
+                        "status": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "duration": {
+                        "phone_number": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "call_status": {
+                        "profile": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "connection_source": {
+                        "body": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "email": {
+                        "sent_at": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "profile_status": {
+                        "message_template_id": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "profile_status_at_call_time": {
+                        "mms": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "handset_number": {
+                        "multipart": {
                             "type": [
                                 "string",
                                 "null"
                             ]
                         },
-                        "carrier_name": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "voip_number": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "destination_number": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "transcription": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "voicemail_duration": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "voicemail": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "mconnect": {
+                        "campaign": {
                             "type": [
                                 "object",
                                 "null"
@@ -114,10 +79,22 @@
                                         "string",
                                         "null"
                                     ]
+                                },
+                                "active": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "name": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
                                 }
                             }
                         },
-                        "profile": {
+                        "previous_id": {
                             "type": [
                                 "object",
                                 "null"
@@ -134,7 +111,7 @@
                     }
                 }
             },
-            "sync_mode": "full_refresh",
+            "sync_mode": "incremental",
             "destination_sync_mode": "overwrite"
         }
     ]
