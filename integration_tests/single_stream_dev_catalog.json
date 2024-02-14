@@ -2,7 +2,7 @@
     "streams": [
         {
             "stream": {
-                "name": "tiny_urls",
+                "name": "clicks",
                 "supported_sync_modes": [
                     "full_refresh",
                     "incremental"
@@ -12,27 +12,27 @@
                     "type": "object",
                     "properties": {
                         "id": {
-                            "type": "string"
-                          },
+                          "type": "string"
+                        },
                         "created_at": {
-                            "type": ["string", "null"]
-                        },
-                        "name": {
-                            "type": ["string", "null"]
-                        },
-                        "mode": {
-                            "type": ["string", "null"]
+                          "type": ["string", "null"]
                         },
                         "url": {
-                            "type": ["string", "null"]
+                          "type": ["string", "null"]
                         },
-                        "host": {
-                            "type": ["string", "null"]
+                        "clicked_url": {
+                          "type": ["string", "null"]
                         },
-                        "description": {
-                            "type": ["string", "null"]
+                        "remote_addr": {
+                          "type": ["string", "null"]
                         },
-                        "key": {
+                        "http_referer": {
+                          "type": ["string", "null"]
+                        },
+                        "user_agent": {
+                          "type": ["string", "null"]
+                        },
+                        "profile_id": {
                             "type": ["string", "null"]
                         }
                     }

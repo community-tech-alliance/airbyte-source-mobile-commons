@@ -106,7 +106,7 @@ class MobileCommonsStream(HttpStream, ABC):
         )['response']
     
         data = response_dict[self.object_name].get(self.array_name)
-        # print(json.dumps(data[0]))
+        # print(json.dumps(data))
         # sys.exit()
         if data:
             yield from data
@@ -296,6 +296,44 @@ class CampaignSubscribers(HttpSubStream, MobileCommonsStream):
     ) -> str:
 
         return "campaign_subscribers"
+
+
+class Clicks(HttpSubStream, MobileCommonsStream):
+    """
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(parent=TinyUrls, **kwargs)
+        self.parent = TinyUrls(**kwargs)
+        self.object_name = 'clicks'
+        self.array_name = 'click'
+        self.force_list = [self.array_name]
+        self.custom_params = {
+            "include_profile": False,
+            "total_link_clicks": False
+        }
+
+    def stream_slices(
+        self, sync_mode: SyncMode, cursor_field: List[str] = None, stream_state: Mapping[str, Any] = None
+    ) -> Iterable[Optional[Mapping[str, Any]]]:
+        for tiny_url in self.parent.read_records(sync_mode=SyncMode.full_refresh):
+            yield {"url_id": tiny_url["id"]}
+
+    primary_key = "id"
+
+    def request_params(
+        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> MutableMapping[str, Any]:
+        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
+        params.update({"url_id": stream_slice["url_id"]})
+
+        return params
+
+    def path(
+        self, stream_state: Mapping[str, Any] = None, stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
+    ) -> str:
+
+        return "clicks"
 
 
 class IncomingMessages(MobileCommonsStream):
@@ -629,6 +667,7 @@ class SourceMobileCommons(AbstractSource):
             Calls(authenticator=auth),
             Campaigns(authenticator=auth),
             CampaignSubscribers(authenticator=auth),
+            Clicks(authenticator=auth),
             IncomingMessages(authenticator=auth),
             Keywords(authenticator=auth),
             MConnects(authenticator=auth),
