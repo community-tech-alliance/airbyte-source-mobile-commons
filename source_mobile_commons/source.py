@@ -451,15 +451,15 @@ class Profiles(MobileCommonsStream, IncrementalMixin):
         Returns a list of each day between the start date and now.
         The return value is a list of dicts {'date': date_string}.
         """
-        dates = []
-        while start_date < datetime.now():
-            from_to_dates = {
-                "from": start_date.strftime('%Y-%m-%d'),
-                "to": (start_date + timedelta(days=1)).strftime('%Y-%m-%d')
+        datetimes = []
+        while start_date < datetime.utcnow().replace(tzinfo=timezone.utc):
+            start_end_datetimes = {
+                "from": datetime.strftime(start_date, "%Y-%m-%d %H:%M:%S %Z"),
+                "to": (start_date + timedelta(days=1)).replace(minute=0, second=0, microsecond=0).strftime("%Y-%m-%d %H:%M:%S %Z")
             }
-            dates.append(from_to_dates)
+            datetimes.append(start_end_datetimes)
             start_date += timedelta(days=1)
-        return dates
+        return datetimes[0:100]
     
     def stream_slices(
         self,
