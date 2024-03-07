@@ -417,7 +417,7 @@ class OutgoingMessages(MobileCommonsStream, IncrementalMixin):
         super().__init__(*args, **kwargs)
         self.object_name = 'messages'
         self.array_name = 'message'
-        self.force_list=['message']
+        self.force_list = ['message']
         self.start_datetime = start_datetime
         self._cursor_value = None
         self.custom_params = {
@@ -516,7 +516,7 @@ class Profiles(MobileCommonsStream, IncrementalMixin):
         self.custom_params = {
             "include_custom_columns": True,
             "include_subscriptions": True,
-            "include_clicks": False,
+            "include_clicks": True,
             "include_members": False,
         }
 
