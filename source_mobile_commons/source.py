@@ -225,49 +225,6 @@ class CampaignSubscribers(HttpSubStream, MobileCommonsStream):
     """
 
     def __init__(self, **kwargs):
-        super().__init__(parent=MConnects, **kwargs)
-        self.parent = MConnects(**kwargs)
-        self.object_name = 'calls'
-        self.array_name = 'call'
-        self.force_list=[self.array_name]
-
-    def stream_slices(
-        self, sync_mode: SyncMode, cursor_field: List[str] = None, stream_state: Mapping[str, Any] = None
-    ) -> Iterable[Optional[Mapping[str, Any]]]:
-        for mconnect in self.parent.read_records(sync_mode=SyncMode.full_refresh):
-            yield {"mconnect_id": mconnect["id"]}
-
-
-    primary_key = "id"
-
-    def request_params(
-        self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
-    ) -> MutableMapping[str, Any]:
-        params = super().request_params(stream_state=stream_state, stream_slice=stream_slice, next_page_token=next_page_token)
-        params.update(
-            {
-                "mconnect_id": stream_slice["mconnect_id"],
-                "include_profile": True,
-                "include_profile_id_only": True,
-                "limit": 1000
-            }
-        )
-
-        return params
-
-    def path(
-        self, stream_state: Mapping[str, Any] = None, stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
-    ) -> str:
-
-        return "calls"
-
-
-
-class CampaignSubscribers(HttpSubStream, MobileCommonsStream):
-    """
-    """
-
-    def __init__(self, **kwargs):
         super().__init__(parent=Campaigns, **kwargs)
         self.parent = Campaigns(**kwargs)
         self.object_name = 'subscriptions'
@@ -417,7 +374,7 @@ class OutgoingMessages(MobileCommonsStream, IncrementalMixin):
         super().__init__(*args, **kwargs)
         self.object_name = 'messages'
         self.array_name = 'message'
-        self.force_list=['message']
+        self.force_list = ['message']
         self.start_datetime = start_datetime
         self._cursor_value = None
         self.custom_params = {
@@ -510,13 +467,13 @@ class Profiles(MobileCommonsStream, IncrementalMixin):
         super().__init__(*args, **kwargs)
         self.object_name = 'profiles'
         self.array_name = 'profile'
-        self.force_list=['profile', 'custom_column', 'integration', 'subscription']
+        self.force_list = ['profile', 'custom_column', 'integration', 'subscription']
         self.start_datetime = start_datetime
         self._cursor_value = None
         self.custom_params = {
             "include_custom_columns": True,
             "include_subscriptions": True,
-            "include_clicks": False,
+            "include_clicks": True,
             "include_members": False,
         }
 

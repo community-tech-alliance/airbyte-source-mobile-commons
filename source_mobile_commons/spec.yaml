@@ -6,7 +6,6 @@ connectionSpecification:
   required:
     - username
     - password
-    - start_date
   properties:
     username:
       type: string
