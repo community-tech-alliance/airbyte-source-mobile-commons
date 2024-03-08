@@ -525,7 +525,6 @@ class Profiles(MobileCommonsStream, IncrementalMixin):
         self.object_name = 'profiles'
         self.array_name = 'profile'
         self.force_list = ['profile', 'custom_column', 'integration', 'subscription']
-        self.force_list = ['profile', 'custom_column', 'integration', 'subscription']
         self.start_datetime = start_datetime
         self._cursor_value = None
         self.custom_params = {
