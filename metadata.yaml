@@ -15,7 +15,7 @@ data:
   connectorSubtype: api
   connectorType: source
   definitionId: ab140a32-9453-4b59-ac07-cb3d456dca6b
-  dockerImageTag: 0.1.0
+  dockerImageTag: 0.1.4
   dockerRepository: airbyte/source-mobile-commons
   githubIssueLabel: source-mobile-commons
   icon: mobile-commons.svg
