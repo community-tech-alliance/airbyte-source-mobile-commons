@@ -19,6 +19,6 @@ connectionSpecification:
       order: 1
     start_date:
       type: string
-      description: The earliest date (e.g. "YYYY-MM-DD") you wish to sync 
+      description: The earliest date (e.g. "YYYY-MM-DD") you wish to sync - required if there is no existing stream state
       airbyte_secret: false
       order: 2
