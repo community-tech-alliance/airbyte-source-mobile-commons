@@ -321,7 +321,7 @@ class IncomingMessages(MobileCommonsStream, IncrementalMixin):
             }
             datetimes.append(start_end_datetimes)
             start_date += timedelta(days=1)
-        return datetimes[0:100]
+        return datetimes
 
     def stream_slices(
         self,
@@ -330,12 +330,12 @@ class IncomingMessages(MobileCommonsStream, IncrementalMixin):
         stream_state: Mapping[str, Any] = None
     ) -> Iterable[Optional[Mapping[str, Any]]]:
         if stream_state and self.cursor_field in stream_state:
-            print('Found stream_state. Starting where we left off...')
             start_datetime = datetime.strptime(stream_state[self.cursor_field], '%Y-%m-%d %H:%M:%S %Z').replace(tzinfo=timezone.utc)
+            print(f'Found stream_state. Starting where the last sync run left off: {start_datetime}')
 
         else:
-            print('No stream state. Starting from the beginning...') 
             start_datetime = self.start_datetime
+            print(f'No stream state. Starting from provided date: {start_datetime}')
         return self._chunk_datetime_range(start_datetime)
 
 
@@ -451,7 +451,7 @@ class OutgoingMessages(MobileCommonsStream, IncrementalMixin):
             }
             datetimes.append(start_end_datetimes)
             start_date += timedelta(days=1)
-        return datetimes[0:100]
+        return datetimes
 
     def stream_slices(
         self,
@@ -460,12 +460,12 @@ class OutgoingMessages(MobileCommonsStream, IncrementalMixin):
         stream_state: Mapping[str, Any] = None
     ) -> Iterable[Optional[Mapping[str, Any]]]:
         if stream_state and self.cursor_field in stream_state:
-            print('Found stream_state. Starting where we left off...')
             start_datetime = datetime.strptime(stream_state[self.cursor_field], '%Y-%m-%d %H:%M:%S %Z').replace(tzinfo=timezone.utc)
+            print(f'Found stream_state. Starting where the last sync run left off: {start_datetime}')
 
         else:
-            print('No stream state. Starting from the beginning...') 
             start_datetime = self.start_datetime
+            print(f'No stream state. Starting from provided date: {start_datetime}')
         return self._chunk_datetime_range(start_datetime)
 
 
@@ -524,7 +524,7 @@ class Profiles(MobileCommonsStream, IncrementalMixin):
         super().__init__(*args, **kwargs)
         self.object_name = 'profiles'
         self.array_name = 'profile'
-        self.force_list=['profile', 'custom_column', 'integration', 'subscription']
+        self.force_list = ['profile', 'custom_column', 'integration', 'subscription']
         self.start_datetime = start_datetime
         self._cursor_value = None
         self.custom_params = {
@@ -556,12 +556,12 @@ class Profiles(MobileCommonsStream, IncrementalMixin):
         stream_state: Mapping[str, Any] = None
     ) -> Iterable[Optional[Mapping[str, Any]]]:
         if stream_state and self.cursor_field in stream_state:
-            print('Found stream_state. Starting where we left off...')
             start_datetime = datetime.strptime(stream_state[self.cursor_field], '%Y-%m-%d %H:%M:%S %Z').replace(tzinfo=timezone.utc)
+            print(f'Found stream_state. Starting where the last sync run left off: {start_datetime}')
 
         else:
-            print('No stream state. Starting from the beginning...') 
             start_datetime = self.start_datetime
+            print(f'No stream state. Starting from provided date: {start_datetime}')
         return self._chunk_datetime_range(start_datetime)
 
     @property
@@ -665,7 +665,7 @@ class SourceMobileCommons(AbstractSource):
         :param config: A Mapping of the user input configuration as defined in the connector spec.
         """
         auth = self.get_basic_auth(config)
-        start_datetime = datetime.strptime(config['start_date'], '%Y-%m-%d').replace(tzinfo=timezone.utc)
+        start_datetime = datetime.strptime(config['start_date'], '%Y-%m-%d').replace(tzinfo=timezone.utc) if config['start_date'] else None
         return [
             Broadcasts(authenticator=auth),
             Calls(authenticator=auth),

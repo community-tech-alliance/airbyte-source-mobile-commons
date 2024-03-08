@@ -11,11 +11,14 @@ connectionSpecification:
       type: string
       description: Mobile Commons username
       airbyte_secret: false
+      order: 0
     password:
       type: string
       description: Mobile Commons password
       airbyte_secret: true
+      order: 1
     start_date:
       type: string
       description: The earliest date (e.g. "YYYY-MM-DD") you wish to sync 
       airbyte_secret: false
+      order: 2
