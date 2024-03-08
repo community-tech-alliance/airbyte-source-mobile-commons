@@ -24,7 +24,7 @@
         "type": ["string", "null"]
       },
       "mms": {
-        "type": ["string", "null"]
+        "type": ["object", "null"]
       },
       "multipart": {
         "type": ["string", "null"]
@@ -45,6 +45,14 @@
       },
       "received_at": {
         "type": ["string", "null"]
+      },
+      "previous_id": {
+        "type": ["object", "null"],
+        "properties": {
+          "id": {
+            "type": ["string", "null"]
+          }
+        }
       },
       "next_id": {
         "type": ["object", "null"],
