@@ -24,7 +24,7 @@
         "type": ["string", "null"]
       },
       "mms": {
-        "type": ["object", "null"]
+        "type": ["string", "null"]
       },
       "multipart": {
         "type": ["string", "null"]
